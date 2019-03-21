@@ -4,7 +4,7 @@ set -x
 
 # HOMEdir set in qsub job
 
-. $HOMEdir/jobs/JFV3SAR_ENVIR
+. $HOMEdir/jobs/CAM/JFV3SAR_ENVIR
 
 mkdir -p /gpfs/${delldir}/${tmpdir}/${LOGNAME}/tmpnwprd_hourly/${job}_${cyc}
 export DATA=/gpfs/${delldir}/${tmpdir}/${LOGNAME}/tmpnwprd_hourly/${job}_${cyc}

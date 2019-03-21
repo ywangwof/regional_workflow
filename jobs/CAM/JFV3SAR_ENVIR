@@ -20,8 +20,8 @@ export BASE_GSM=${BASEDIR}
 export HOMEdir=/gpfs/dell2/emc/modeling/noscrub/$USER/fv3reg_da_hourly_rocoto
 export DATEdir=$HOMEdir/date
 mkdir -p $DATEdir
-export PARMdir=$HOMEdir/parm
-export SCRIPTdir=$HOMEdir/scripts
+export PARMdir=$HOMEdir/parm/CAM
+export SCRIPTdir=$HOMEdir/scripts/CAM
 export USHdir=$HOMEdir/ush
 
 export FIXnew=/gpfs/dell2/emc/modeling/noscrub/$USER/fv3reg_da_hourly_rocoto/fix

@@ -4,7 +4,7 @@ set -x
 
 # HOMEdir set in qsub job
 
-. $HOMEdir/jobs/JFV3SAR_ENVIR
+. $HOMEdir/jobs/CAM/JFV3SAR_ENVIR
 
 . /usrx/local/prod/lmod/lmod/init/ksh
 module purge
