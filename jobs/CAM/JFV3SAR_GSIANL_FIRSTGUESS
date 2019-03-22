@@ -79,13 +79,13 @@ if [ $machine = THEIA ] ; then
   export fixcrtm=/scratch4/NCEPDEV/da/save/Michael.Lueken/nwprod/lib/crtm/2.2.3/fix_update
 fi
 if [ $machine = WCOSS ] ; then
-  export UTIL=$HOMEdir/util/ush
+  export UTIL=$HOMEdir/util/ush/CAM
   export gsiexec=/meso/save/${USER}/fv3reg_aug2018/fv3gsi_reg/build/bin/gsi.x
   export fixgsi=/meso/save/${USER}/fv3reg_aug2018/fv3gsi_reg/ProdGSI/fix
   export fixcrtm=/da/save/Michael.Lueken/CRTM_REL-2.2.3/crtm_v2.2.3/fix_update
 fi
 if [ $machine = DELL ] ; then
-  export UTIL=$HOMEdir/util/ush
+  export UTIL=$HOMEdir/util/ush/CAM
   export gsiexec=${HOMEgfs}/sorc/gsi.fd/build/bin/gsi.x
   export fixgsi=${HOMEgfs}/sorc/gsi.fd/fix
   export fixcrtm=/gpfs/dell1/nco/ops/nwprod/lib/crtm/v2.2.6/fix
