@@ -1,0 +1,43 @@
+set -x
+
+# Forecast type and duration information
+
+export FCSTtype=history
+export FCSTevent=0 # -- 0 = run regardless of whether TC event is in the basin
+                   # -- 1 = run for a specific TC event
+
+#----
+
+# General path information 
+
+export HOMEdir=/Users/hwinter/home/trunk/fv3sar_workflow
+export PARMdir=$HOMEdir/parm/HAFS
+export SCRIPTdir=$HOMEdir/scripts/HAFS
+export USHdir=$HOMEdir/ush
+export WORKdir=/Users/hwinter/work
+
+#----
+
+# PREPBUFR options; 0 = don't process; 1 = process
+
+export PREPBUFRhsa=1 # -- Process NOAA/AOML/HRD dropsondes and drift calculations
+
+# PREBUFR HSA (e.g., TEMP-DROP) options
+
+export HSAdatapath=/Users/hwinter/noscrub/fv3sar_workflow/input-data/hsa/history
+export HSAoffset_seconds=10800
+export HSAsrchstrs=UZNT,UZPN,UZPA
+
+###########################################################################
+# USER: DO NOT MAKE CHANGES BELOW (if you do, you're on your own!) 
+###########################################################################
+
+# Define local variables
+
+export COMROOT=${WORKdir}/${USER}/com
+export EXPTROOT=${WORKdir}/${USER}/${CYCLE}
+
+# Create local sub-directories
+
+mkdir -p ${COMROOT}
+mkdir -p ${EXPTROOT}
