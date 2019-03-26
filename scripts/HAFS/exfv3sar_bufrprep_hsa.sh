@@ -11,7 +11,7 @@
 #                      drift calculations to be appended to the 
 #                      data-assimilation PREPBUFR files.
 #
-# Script history log: 2019-03-21  Henry Winterbottom -- Original version.
+# Script history log:  2019-03-21  Henry Winterbottom -- Original version.
 #
 ################################################################################
 
@@ -132,7 +132,6 @@ deliver_products (){
 
     cp ${BUFRPREPdir}/tempdrop/prepbufr.hsa ${COMROOT}/bufrprep
     cp ${BUFRPREPdir}/tempdrop/prepbufr.hsa ${ITRCROOT}/bufrprep
-
 }
 
 #----

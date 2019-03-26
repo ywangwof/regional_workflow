@@ -22,7 +22,11 @@ export WORKdir=/Users/hwinter/work
 
 # PREPBUFR options; 0 = don't process; 1 = process
 
-export PREPBUFRhsa=1 # -- Process NOAA/AOML/HRD dropsondes and drift calculations
+export PREPBUFRhsa=1      # -- Process NOAA/AOML/HRD dropsondes and drift
+                          #    calculations.
+
+export PREPBUFRgivtdruv=1 # -- Process NOAA/AOML/HRD G-IV tail-Doppler
+                          #    radar (TDR) u- and v-winds.
 
 # PREBUFR HSA (e.g., TEMP-DROP) options
 
@@ -32,6 +36,12 @@ export HSAsrchstrs=UZNT,UZPN,UZPA
 export HSAprepbufrtbl_filepath=${PARMdir}/bufrprep/prepobs_prep.bufrtable
 export HSAbufrinfo_filepath=${PARMdir}/bufrprep/hsa.bufr_info.json
 export HSAobserr_filepath=${PARMdir}/bufrprep/hsa.obs_error
+
+# PREPBUFR G4TDRUV (e.g., G-IV tail-Dopper radar u- and v-winds)
+# options.
+
+export G4TDRUVdatapath=/Users/hwinter/noscrub/fv3sar_workflow/input-data/givtdruv
+export G4TDRUVbufrinfo_filepath=${PARMdir}/bufrprep/givtdruv.bufr_info.json
 
 ###########################################################################
 # USER: DO NOT MAKE CHANGES BELOW (if you do, you're on your own!) 

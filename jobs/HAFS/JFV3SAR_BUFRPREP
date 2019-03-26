@@ -37,3 +37,9 @@ if [ $PREPBUFRhsa = 1 ]; then
     export tds_exe=${EXECdir}/hafs_tempdrop.exe
     ${SCRIPTdir}/exfv3sar_bufrprep_hsa.sh
 fi # [ $PREPBUFRhsa = 1 ]
+
+# Process NOAA/AOML/HRD G-IV tail-Doppler radar (TDR) u- and v-winds.
+
+if [ $PREPBUFRgivtdruv = 1 ]; then
+    ${SCRIPTdir}/exfv3sar_bufrprep_givtdruv.sh
+fi # [ $PREPBUFRgivtdruv = 1 ]
