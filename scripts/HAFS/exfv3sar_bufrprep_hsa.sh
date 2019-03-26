@@ -178,7 +178,8 @@ dump_tempdrop_history (){
 
 # DESCRIPTION:
 
-#
+# This function collects the available observations in accordance with
+# the user forecast configuration.
 
 dump_tempdrop_sonde (){
 
