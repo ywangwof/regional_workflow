@@ -23,8 +23,17 @@ set -x
 mkdir -p ${COMROOT}/bufrprep
 mkdir -p ${EXPTROOT}/bufrprep
 
+# Get processor id (pid)
+
+export pid=$$
+
+# Define executable to create PREPBUFR-formatted files.
+
+export otb_exe=${EXECdir}/hafs_obstobufr.exe
+
 # Process NOAA/AOML/HRD dropsondes with drift calculations.
 
 if [ $PREPBUFRhsa = 1 ]; then
+    export tds_exe=${EXECdir}/hafs_tempdrop.exe
     ${SCRIPTdir}/exfv3sar_bufrprep_hsa.sh
-fi
+fi # [ $PREPBUFRhsa = 1 ]

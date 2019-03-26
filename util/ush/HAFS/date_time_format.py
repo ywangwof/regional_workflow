@@ -81,7 +81,7 @@ class DateTimeAttributes(object):
         self.opts_obj=opts_obj
         self.datestr=getattr(self.opts_obj,'date_string')
         self.offset_seconds=getattr(self.opts_obj,'offset_seconds')
-        self.dateobj=datetime.datetime.strptime(self.datestr,'%Y%m%d%H%M%S')+\
+        self.dateobj=datetime.datetime.strptime(self.datestr,'%Y%m%d%H')+\
             datetime.timedelta(0,self.offset_seconds)
         self.datetime_obj=lambda:None
         self.obj_keys_list=list()
@@ -95,7 +95,8 @@ class DateTimeAttributes(object):
         """
         date_comps_dict={'year':'%Y','month':'%m','day':'%d','hour':'%H',\
             'minute':'%M','second':'%S','month_name_long':'%B','month_name_short':\
-            '%b','weekday_long':'%A','weekday_short':'%a'}        
+            '%b','weekday_long':'%A','weekday_short':'%a','date_string':\
+            '%Y-%m-%d_%H:%M:%S'}        
         for key in date_comps_dict.keys():
             self.obj_keys_list.append(key)
             value=datetime.datetime.strftime(self.dateobj,date_comps_dict[key])

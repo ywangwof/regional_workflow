@@ -11,9 +11,11 @@ export FCSTevent=0 # -- 0 = run regardless of whether TC event is in the basin
 # General path information 
 
 export HOMEdir=/Users/hwinter/home/trunk/fv3sar_workflow
+export EXECdir=$HOMEdir/exec
 export PARMdir=$HOMEdir/parm/HAFS
 export SCRIPTdir=$HOMEdir/scripts/HAFS
 export USHdir=$HOMEdir/ush
+export UTILdir=$HOMEdir/util/ush/HAFS
 export WORKdir=/Users/hwinter/work
 
 #----
@@ -27,6 +29,9 @@ export PREPBUFRhsa=1 # -- Process NOAA/AOML/HRD dropsondes and drift calculation
 export HSAdatapath=/Users/hwinter/noscrub/fv3sar_workflow/input-data/hsa/history
 export HSAoffset_seconds=10800
 export HSAsrchstrs=UZNT,UZPN,UZPA
+export HSAprepbufrtbl_filepath=${PARMdir}/bufrprep/prepobs_prep.bufrtable
+export HSAbufrinfo_filepath=${PARMdir}/bufrprep/hsa.bufr_info.json
+export HSAobserr_filepath=${PARMdir}/bufrprep/hsa.obs_error
 
 ###########################################################################
 # USER: DO NOT MAKE CHANGES BELOW (if you do, you're on your own!) 
@@ -36,8 +41,10 @@ export HSAsrchstrs=UZNT,UZPN,UZPA
 
 export COMROOT=${WORKdir}/${USER}/com
 export EXPTROOT=${WORKdir}/${USER}/${CYCLE}
+export ITRCROOT=${EXPTROOT}/intercom
 
 # Create local sub-directories
 
 mkdir -p ${COMROOT}
 mkdir -p ${EXPTROOT}
+mkdir -P ${ITRCROOT}
