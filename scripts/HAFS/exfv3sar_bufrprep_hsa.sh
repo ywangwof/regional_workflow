@@ -1,7 +1,8 @@
 #!/bin/ksh
 
 ################################################################################
-####  UNIX Script Documentation Block
+#
+# UNIX Script Documentation Block
 #
 # Script name:         exfv3sar_bufrprep_hsa.sh
 #
@@ -431,16 +432,53 @@ strip_meta (){
 
 #----
 
-# Create local sub-directories
+script_name=`basename "$0"`
+start_date=`date`
+echo "START ${script_name}: ${start_date}"
+
+# The following tasks are accomplished by this script:
+
+# (1) Create local sub-directories.
 
 export BUFRPREPdir=${EXPTROOT}/bufrprep
 
+# (2) The available TEMP-DROP formatted sonde observations are
+#     collected relative to the forecast configuration (e.g., HISTORY
+#     versus REALTIME).
+
 dump_tempdrop_sonde 
+
+# (3) The available TEMP-DROP formatted sonde observations are
+#     formatted such that any meta-characters and time-stamp (e.g.,
+#     launch and landing/splash) are properly formatted.
+
 format_tempdrop_sonde
+
+# (4) Create the appropriate namelist and external files required to
+#     estimate the sonde drift.
+
 create_tempdrop_sonde_namelist
+
+# (5) Compute the sonde drift and prepare files for the PREPBUFR file.
+
 run_tempdrop_sonde
+
+# (6) Create the appropriate namelist and external files for the
+#     creation fo the PREPBUFR file.
+
 create_obs_to_bufr_namelist
+
+# (7) Create the PREPBUFR formatted file containing the TEMP-DROP
+#     sonde observations (including the estimated drift).
+
 run_obs_to_bufr
+
+# (8) Deliver the relevant files to the respective /intercom and /com
+#     paths.
+
 deliver_products
+
+stop_date=`date`
+echo "STOP ${script_name}: ${stop_date}"
 
 exit

@@ -39,7 +39,7 @@ export HSAobserr_filepath=${PARMdir}/bufrprep/hsa.obs_error
 
 # Define local variables
 
-export COMROOT=${WORKdir}/${USER}/com
+export COMROOT=${WORKdir}/${USER}/com/${CYCLE}
 export EXPTROOT=${WORKdir}/${USER}/${CYCLE}
 export ITRCROOT=${EXPTROOT}/intercom
 
