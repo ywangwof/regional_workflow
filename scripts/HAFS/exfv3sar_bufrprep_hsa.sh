@@ -21,73 +21,6 @@ set -x
 
 # FUNCTION:
 
-# create_obs_to_bufr_namelist.sh
-
-# DESCRIPTION:
-
-# This function creates the namelist file obs-to-bufr.input in the
-# working directory.
-
-create_obs_to_bufr_namelist (){
-
-    # Create external file containing time-stamp attributes.
-
-    python ${UTILdir}/date_time_format.py --date_string ${CYCLE} --output_file ${BUFRPREPdir}/tempdrop/cycle.info
-
-    # Define analysis date relative to which to define observation
-    # times.
-
-    analdate=`cat ${BUFRPREPdir}/tempdrop/cycle.info | grep 'date_string' | awk '{print $2}'`
-
-    # Create namelist file obs-to-bufr.input in working directory.
-
-    cat << EOF > ${BUFRPREPdir}/tempdrop/obs-to-bufr.input
-&share
-analdate    = '${analdate}'
-datapath    = './'
-is_fcstmdl  = F
-is_givtdruv = F
-is_hsa      = T
-is_nhcgtcm  = F
-is_tcm      = F
-obs_flag    = F
-/
-
-&bufr
-bufr_tblpath = '${HSAprepbufrtbl_filepath}'
-/
-
-&fcstmdl
-/
-
-&flag
-/
-
-&givtdruv
-/
-
-&hsa
-hsa_bufr_info_filepath = '${HSAbufrinfo_filepath}'
-hsa_intrp_obserr       = T
-hsa_obs_filepath       = '${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist'
-hsa_obserr_filepath    = '${HSAobserr_filepath}'
-/
-
-&nhcgtcm
-/
-
-&tcm
-/
-
-&topo
-/ 
-EOF
-}
-
-#----
-
-# FUNCTION:
-
 # create_tempdrop_sonde_namelist.sh
 
 # DESCRIPTION:
@@ -328,21 +261,29 @@ prepend_string_newline (){
 
 run_obs_to_bufr (){
 
-    # Move to working directory.
+    # Create external file containing time-stamp attributes.
 
-    cd ${BUFRPREPdir}/tempdrop
+    python ${UTILdir}/date_time_format.py --date_string ${CYCLE} --output_file ${BUFRPREPdir}/tempdrop/cycle.info
 
-    # Copy executable to local (e.g., working) directory.
+    # Define analysis date relative to which to define observation
+    # times.
 
-    cp ${otb_exe} ${BUFRPREPdir}/tempdrop/otb.x
+    analdate=`cat ${BUFRPREPdir}/tempdrop/cycle.info | grep 'date_string' | awk '{print $2}'`
 
-    # Define unique standard output file.
+    # Define environment variables.
 
-    pgmout=${BUFRPREPdir}/tempdrop/obs_to_bufr.out.${pid}
+    export ANALDATE=${analdate}
+    export RUNPATH=${BUFRPREPdir}/tempdrop
+    export IS_HSA=T
+    export BUFR_TBLPATH=${HSAprepbufrtbl_filepath}
+    export HSA_BUFR_INFO_FILEPATH=${HSAbufrinfo_filepath}
+    export HSA_INTRP_OBSERR=T
+    export HSA_OBS_FILEPATH=${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist
+    export HSA_OBSERR_FILEPATH=${HSAobserr_filepath}
 
-    # Launch executable and write standard output to external file.
+    # Create PREPBUFR-formatted file for TEMP-DROP sonde observations.
 
-    ${BUFRPREPdir}/tempdrop/otb.x > ${pgmout}
+    ${SCRIPTdir}/exfv3sar_bufrprep_obstobufr.sh
 }
 
 #----
@@ -463,17 +404,12 @@ create_tempdrop_sonde_namelist
 
 run_tempdrop_sonde
 
-# (6) Create the appropriate namelist and external files for the
-#     creation fo the PREPBUFR file.
-
-create_obs_to_bufr_namelist
-
-# (7) Create the PREPBUFR formatted file containing the TEMP-DROP
+# (6) Create the PREPBUFR formatted file containing the TEMP-DROP
 #     sonde observations (including the estimated drift).
 
 run_obs_to_bufr
 
-# (8) Deliver the relevant files to the respective /intercom and /com
+# (7) Deliver the relevant files to the respective /intercom and /com
 #     paths.
 
 deliver_products

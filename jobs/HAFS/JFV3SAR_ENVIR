@@ -42,6 +42,7 @@ export HSAobserr_filepath=${PARMdir}/bufrprep/hsa.obs_error
 
 export G4TDRUVdatapath=/Users/hwinter/noscrub/fv3sar_workflow/input-data/givtdruv
 export G4TDRUVbufrinfo_filepath=${PARMdir}/bufrprep/givtdruv.bufr_info.json
+export G4TDRUVprepbufrtbl_filepath=${PARMdir}/bufrprep/prepobs_prep.bufrtable
 
 ###########################################################################
 # USER: DO NOT MAKE CHANGES BELOW (if you do, you're on your own!) 

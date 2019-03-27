@@ -80,71 +80,6 @@ format_observation_files (){
 	echo "${date_string} ${BUFRPREPdir}/givtdruv/obs/${filename}" >> ${BUFRPREPdir}/givtdruv/givtdruv.filelist
 
     done # for filename in ${filenames}
-}
-
-#----
-
-# FUNCTION:
-
-# create_obs_to_bufr_namelist.sh
-
-# DESCRIPTION:
-
-# This function creates the namelist file obs-to-bufr.input in the
-# working directory.
-
-create_obs_to_bufr_namelist (){
-
-    # Create external file containing time-stamp attributes.
-
-    python ${UTILdir}/date_time_format.py --date_string ${CYCLE} --output_file ${BUFRPREPdir}/givtdruv/cycle.info
-
-    # Define analysis date relative to which to define observation
-    # times.
-
-    analdate=`cat ${BUFRPREPdir}/givtdruv/cycle.info | grep 'date_string' | awk '{print $2}'`
-
-    # Create namelist file obs-to-bufr.input in working directory.
-
-    cat << EOF > ${BUFRPREPdir}/givtdruv/obs-to-bufr.input
-&share
-analdate    = '${analdate}'
-datapath    = './'
-is_fcstmdl  = F
-is_givtdruv = T
-is_hsa      = F
-is_nhcgtcm  = F
-is_tcm      = F
-obs_flag    = F
-/
-
-&bufr
-bufr_tblpath = '${HSAprepbufrtbl_filepath}'
-/
-
-&fcstmdl
-/
-
-&flag
-/
-
-&givtdruv
-givtdruv_bufr_info_filepath = '${G4TDRUVbufrinfo_filepath}'
-givtdruv_obs_filepath       = '${BUFRPREPdir}/givtdruv/givtdruv.filelist'
-/
-
-&hsa
-/
-
-&nhcgtcm
-/
-
-&tcm
-/
-
-&topo
-/ 
-EOF
 }    
 
 #----
@@ -171,7 +106,6 @@ deliver_products (){
     cp ${BUFRPREPdir}/givtdruv/prepbufr.givtdruv ${ITRCROOT}/bufrprep
 }
 
-
 #----
 
 # FUNCTION:
@@ -185,21 +119,28 @@ deliver_products (){
 
 run_obs_to_bufr (){
 
-    # Move to working directory.
+    # Create external file containing time-stamp attributes.
 
-    cd ${BUFRPREPdir}/givtdruv
+    python ${UTILdir}/date_time_format.py --date_string ${CYCLE} --output_file ${BUFRPREPdir}/givtdruv/cycle.info
 
-    # Copy executable to local (e.g., working) directory.
+    # Define analysis date relative to which to define observation
+    # times.
 
-    cp ${otb_exe} ${BUFRPREPdir}/givtdruv/otb.x
+    analdate=`cat ${BUFRPREPdir}/givtdruv/cycle.info | grep 'date_string' | awk '{print $2}'`
 
-    # Define unique standard output file.
+    # Define environment variables.
 
-    pgmout=${BUFRPREPdir}/givtdruv/obs_to_bufr.out.${pid}
+    export ANALDATE=${analdate}
+    export RUNPATH=${BUFRPREPdir}/givtdruv
+    export IS_GIVTDRUV=T
+    export BUFR_TBLPATH=${G4TDRUVprepbufrtbl_filepath}
+    export GIVTDRUV_BUFR_INFO_FILEPATH=${G4TDRUVbufrinfo_filepath}
+    export GIVTDRUV_OBS_FILEPATH=${BUFRPREPdir}/givtdruv/givtdruv.filelist
 
-    # Launch executable and write standard output to external file.
+    # Create PREPBUFR-formatted file for G-IV TDR u- and v-wind
+    # observations.
 
-    ${BUFRPREPdir}/givtdruv/otb.x > ${pgmout}
+    ${SCRIPTdir}/exfv3sar_bufrprep_obstobufr.sh
 }
 
 #----
@@ -218,17 +159,12 @@ export BUFRPREPdir=${EXPTROOT}/bufrprep
 
 format_observation_files
 
-# (3) Create the appropriate namelist and external files for the
-#     creation fo the PREPBUFR file.
-
-create_obs_to_bufr_namelist
-
-# (4) Create the PREPBUFR formatted file containing the G-IV TDR u-
+# (3) Create the PREPBUFR formatted file containing the G-IV TDR u-
 #     and v-wind sonde observations.
 
 run_obs_to_bufr
 
-# (5) Deliver the relevant files to the respective /intercom and /com
+# (4) Deliver the relevant files to the respective /intercom and /com
 #     paths.
 
 deliver_products
