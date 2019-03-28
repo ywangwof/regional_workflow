@@ -17,6 +17,10 @@
 
 set -x
 
+# Define environment for respective experiment.
+
+. ${WORKdir}/${USER}/${CYCLE}/intercom/experiment.${CYCLE}
+
 #----
 
 # FUNCTION:
@@ -51,7 +55,7 @@ format_observation_files (){
 
     # Remove any previous occurrances of external file list.
 
-    rm ${BUFRPREPdir}/givtdruv/givtdruv.filelist >& /dev/null
+    rm ${BUFRPREPdir}/givtdruv/givtdruv.filelist
 
     # Loop through all file names and retrieve time-stamp information.
 

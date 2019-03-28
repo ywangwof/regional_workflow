@@ -96,7 +96,7 @@ class DateTimeAttributes(object):
         date_comps_dict={'year':'%Y','month':'%m','day':'%d','hour':'%H',\
             'minute':'%M','second':'%S','month_name_long':'%B','month_name_short':\
             '%b','weekday_long':'%A','weekday_short':'%a','date_string':\
-            '%Y-%m-%d_%H:%M:%S'}        
+            '%Y-%m-%d_%H:%M:%S','cycle':'%Y%m%d%H'}        
         for key in date_comps_dict.keys():
             self.obj_keys_list.append(key)
             value=datetime.datetime.strftime(self.dateobj,date_comps_dict[key])

@@ -5,6 +5,7 @@ set -x
 # HOMEdir set in qsub job
 
 . $HOMEdir/jobs/HAFS/JFV3SAR_ENVIR
+. $WORKdir/${USER}/${CYCLE}/intercom/experiment.${CYCLE}
 
 #. /usrx/local/prod/lmod/lmod/init/ksh
 #module purge
@@ -14,16 +15,24 @@ set -x
 #module list
 
 #######################################################################
+#
 # Execute the respective BUFR preparation scripts in accordance with
-# the user specifications.
+# the user specifications; launch the following tasks:
+#
+# (1) Create PREFBUFR-formatted file for the NOAA/AOML/HRD TEMP-DROP 
+#     sonde observations.
+#
+# (2) Create PREPBUFR-formatted file for the NOAA/AOML/HRD G-IV 
+#     tail-Doppler radar (TDR) u- and v-wind observations.
+
 #######################################################################
 
-# Create local sub-directories
+# Create local sub-directories.
 
 mkdir -p ${COMROOT}/bufrprep
 mkdir -p ${EXPTROOT}/bufrprep
 
-# Get processor id (pid)
+# Get processor id (pid).
 
 export pid=$$
 
