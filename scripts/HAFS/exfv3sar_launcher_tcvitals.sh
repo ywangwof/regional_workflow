@@ -12,11 +12,7 @@
 #
 ################################################################################
 
-<<<<<<< HEAD
 set -x -e
-=======
-set -x
->>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
 # Define environment for respective experiment.
 
@@ -30,12 +26,8 @@ set -x
 
 # DESCRIPTION:
 
-<<<<<<< HEAD
 # This function collects TC-vitals records in accordance with the user
 # experiment configuration.
-=======
-#
->>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
 parse_tcv_records (){
 
@@ -198,14 +190,10 @@ tcv_record_history (){
 
 # DESCRIPTION:
 
-<<<<<<< HEAD
 # This function parses all files in the user specified path
 # (SYNDATpath) and collects all TC-vitals records for the current
 # forecast cycle and also create a log of all previous TC-vitals
 # records for the respective events.
-=======
-# 
->>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
 parse_tcv_records_cycle (){
 
