@@ -17,6 +17,10 @@
 
 set -x
 
+# Define environment for respective experiment.
+
+. ${WORKdir}/${USER}/${CYCLE}/intercom/experiment.${CYCLE}
+
 #----
 
 # FUNCTION:
@@ -157,7 +161,7 @@ format_tempdrop_sonde (){
 
     # Remove any previous occurrances of external file list.
 
-    rm sonde.filelist >& /dev/null
+    rm sonde.filelist
 
     # Loop through all file names and check for data non-usage flags.
 
@@ -323,7 +327,7 @@ run_tempdrop_sonde (){
 
     # Remove previous occurances of external file list.
 
-    rm ${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist >& /dev/null
+    rm ${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist
 
     # Loop through each observation file and append file path to
     # external file.

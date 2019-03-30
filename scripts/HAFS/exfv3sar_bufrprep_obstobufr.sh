@@ -16,6 +16,10 @@
 
 set -x
 
+# Define environment for respective experiment.
+
+. ${WORKdir}/${USER}/${CYCLE}/intercom/experiment.${CYCLE}
+
 #----
 
 # FUNCTION:
