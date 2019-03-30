@@ -1,10 +1,10 @@
 #!/bin/ksh
  
-set -x
+set -x -e
 
-# HOMEdir set in qsub job
+# HOMEdir defined within environment.
 
-. $HOMEdir/jobs/HAFS/JFV3SAR_ENVIR
+. ${HOMEdir}/jobs/HAFS/JFV3SAR_ENVIR
 
 #######################################################################
 #
@@ -18,11 +18,6 @@ set -x
 #     simulated in accordance with the user specifications.
 #
 #######################################################################
-
-# Create local sub-directories
-
-mkdir -p ${COMROOT}
-mkdir -p ${EXPTROOT}
 
 # Get processor id (pid).
 

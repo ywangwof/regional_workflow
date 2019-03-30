@@ -10,10 +10,6 @@
       &SERIAL_EXTRA;
 
       <envar>
-	<name>HOMEdir</name>
-	<value>&HOMEdir;</value>
-      </envar>
-      <envar>
         <name>CYCLE</name>
 	<value><cyclestr>@Y@m@d@H</cyclestr></value>
       </envar>
