@@ -16,7 +16,11 @@
 #
 ################################################################################
 
+<<<<<<< HEAD
 set -x -e
+=======
+set -x
+>>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
 #----
 
@@ -33,8 +37,13 @@ build_experiment (){
 
     # Define local variables
 
+<<<<<<< HEAD
     export COMROOT=${WORKdir}/${USER}/${EXPTname}/com/${CYCLE}
     export EXPTROOT=${WORKdir}/${USER}/${EXPTname}/${CYCLE}
+=======
+    export COMROOT=${WORKdir}/${USER}/com/${CYCLE}
+    export EXPTROOT=${WORKdir}/${USER}/${CYCLE}
+>>>>>>> eec88b674823e3dcf777371124e6c808a719b801
     export ITRCROOT=${EXPTROOT}/intercom
 
     # Create local sub-directories
@@ -64,7 +73,11 @@ build_experiment_info (){
 
     # Remove any previous occurances of external file.
 
+<<<<<<< HEAD
     rm ${EXPTINFO_FILEPATH} 2> /dev/null || :
+=======
+    rm ${EXPTINFO_FILEPATH} 
+>>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
     # Append the user job environment file to external file.
 

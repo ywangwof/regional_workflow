@@ -37,6 +37,7 @@ export HSAobserr_filepath=${PARMdir}/bufrprep/hsa.obs_error
 
 export G4TDRUVdatapath=/Users/hwinter/noscrub/fv3sar_workflow/input-data/bufrprep/givtdruv
 export G4TDRUVbufrinfo_filepath=${PARMdir}/bufrprep/givtdruv.bufr_info.json
+<<<<<<< HEAD
 export G4TDRUVprepbufrtbl_filepath=${PARMdir}/bufrprep/prepobs_prep.bufrtable
 
 #----
@@ -50,3 +51,6 @@ export otb_exe=${EXECdir}/hafs_obstobufr.exe
 # Define executable to format TEMP-DROP sonde observation files.
 
 export tds_exe=${EXECdir}/hafs_tempdrop.exe
+=======
+export G4TDRUVprepbufrtbl_filepath=${PARMdir}/bufrprep/prepobs_prep.bufrtable
+>>>>>>> eec88b674823e3dcf777371124e6c808a719b801

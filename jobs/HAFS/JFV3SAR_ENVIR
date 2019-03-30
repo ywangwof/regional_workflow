@@ -7,6 +7,10 @@ export ROCOTOdir=$HOMEdir/rocoto/HAFS
 export SCRIPTdir=$HOMEdir/scripts/HAFS
 export USHdir=$HOMEdir/ush
 export UTILdir=$HOMEdir/util/ush/HAFS
+<<<<<<< HEAD
+=======
+export WORKdir=/Users/hwinter/work
+>>>>>>> eec88b674823e3dcf777371124e6c808a719b801
 
 
 
