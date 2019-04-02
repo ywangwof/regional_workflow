@@ -15,7 +15,7 @@
 #
 ################################################################################
 
-set -x
+set -x -e
 
 # Define environment for respective experiment.
 
@@ -101,7 +101,7 @@ dump_tempdrop_history (){
 
 	# Remove tarball within working directory
 
-	rm ${filename}
+	rm ${filename} 2> /dev/null || :
 
     done # for filename in ${filenames}
 }
@@ -265,14 +265,15 @@ prepend_string_newline (){
 
 run_obs_to_bufr (){
 
-    # Create external file containing time-stamp attributes.
+    # Define external file to contain forecast cycle date and time
+    # information.
 
-    python ${UTILdir}/date_time_format.py --date_string ${CYCLE} --output_file ${BUFRPREPdir}/tempdrop/cycle.info
+    export TIMEINFO_FILEPATH=${ITRCROOT}/cycle.timeinfo
 
     # Define analysis date relative to which to define observation
     # times.
 
-    analdate=`cat ${BUFRPREPdir}/tempdrop/cycle.info | grep 'date_string' | awk '{print $2}'`
+    analdate=`cat ${TIMEINFO_FILEPATH} | grep 'date_string' | awk '{print $2}'`
 
     # Define environment variables.
 
@@ -327,7 +328,7 @@ run_tempdrop_sonde (){
 
     # Remove previous occurances of external file list.
 
-    rm ${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist
+    rm ${BUFRPREPdir}/tempdrop/obs_to_bufr.filelist 2> /dev/null || :
 
     # Loop through each observation file and append file path to
     # external file.

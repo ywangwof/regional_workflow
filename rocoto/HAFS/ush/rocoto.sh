@@ -24,7 +24,8 @@ set -x -e
 
 # DESCRIPTION:
 
-#
+# This function defines the relevant environment variables for the
+# NOAA RHPCS-Jet cluster.
 
 _rdhpcs_jet_workflow (){
 
@@ -146,6 +147,11 @@ EOF
 
     task_launcher
 
+    # Define bufrprep tasks and append to Rocoto workflow manager
+    # file.
+
+    task_bufrprep
+
     # Finalize XML file for Rocoto workflow manager directives.
 
     cat <<EOF >> ${ROCOTOwffilepath}
@@ -194,7 +200,8 @@ define_cycledef (){
 
 # DESCRIPTION:
 
-#
+# This function defines the logger file attributes in accordance with
+# the user experiment configuration.
 
 define_logger (){
 
@@ -268,7 +275,8 @@ define_realtime (){
 
 # DESCRIPTION:
 
-#
+# This function configures the host machine environment relative to
+# the respective (supportted) platform and host.
 
 host_machine_config (){
 
@@ -307,14 +315,38 @@ host_machine_config (){
 
 # DESCRIPTION:
 
-#
+# This function launches the Rocoto workflow manager.
 
 launch_rocoto_workflow (){
 
-    rocotorun --database ${ROCOTOdbfilepath} --workflow ${ROCOTOwffilepath}
+    # Launch the Rocoto workflow manager.
 
+    rocotorun --database ${ROCOTOdbfilepath} --workflow ${ROCOTOwffilepath}
 }
 
+#----
+
+# FUNCTION:
+
+# task_bufrprep.sh
+
+# DESCRIPTION:
+
+# This function writes the bufrprep task attributes to the Rocoto
+# workflow manager file.
+
+task_bufrprep (){
+
+    # Write bufrprep task directives to Rocoto workflow manager file.
+
+    cat <<EOF >> ${ROCOTOwffilepath}
+  <!-- HAFS workflow bufrprep tasks -->
+  <metatask name="meta_bufrprep" mode="parallel">
+    <var name="ENS">99</var>
+    &bufrprep_tasks;
+  </metatask>
+EOF
+}
 
 #----
 
@@ -324,7 +356,8 @@ launch_rocoto_workflow (){
 
 # DESCRIPTION:
 
-# 
+# This function writes the launcher task attributes to the Rocoto
+# workflow manager file.
 
 task_launcher (){
 

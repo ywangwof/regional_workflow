@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-set -x
+set -x -e
 
 # Define environment for respective experiment.
 
