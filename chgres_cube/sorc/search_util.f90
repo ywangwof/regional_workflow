@@ -126,7 +126,7 @@
 
                if (mask(ii,jj) == 1  .and. field(ii,jj) > -9999.0) then
                  field(i,j) = field(ii,jj)
-                 write(6,100) tile,i,j,ii,jj,field(i,j)
+                 write(6,100) field_num,tile,i,j,ii,jj,field(i,j)
                  cycle I_LOOP
                endif
 
@@ -143,14 +143,14 @@
          field(i,j) = default_value  ! Search failed.  Use default value.
        endif
 
-       write(6,101) tile,i,j,field(i,j)
+       write(6,101) field_num,tile,i,j,field(i,j)
 
      endif
    enddo I_LOOP
  enddo J_LOOP
 
- 100 format(1x,"- MISSING POINT TILE: ",i2," I/J: ",i5,i5," SET TO VALUE AT: ",i5,i5,". NEW VALUE IS: ",f8.3)
- 101 format(1x,"- MISSING POINT TILE: ",i2," I/J: ",i5,i5," SET TO DEFAULT VALUE OF: ",f8.3)
+ 100 format(1x,"- MISSING POINT VAR:  ",i3," TILE: ",i2," I/J: ",i5,i5," SET TO VALUE AT: ",i5,i5,". NEW VALUE IS: ",f8.3)
+ 101 format(1x,"- MISSING POINT VAR:  ",i3," TILE: ",i2," I/J: ",i5,i5," SET TO DEFAULT VALUE OF: ",f8.3)
 
  end subroutine search
 

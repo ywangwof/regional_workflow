@@ -3130,7 +3130,7 @@ if (localpet == 0) then
 
  the_file = trim(data_dir_input_grid) // "/" // trim(grib2_file_input_grid)
  if (trim(external_model) == "RAP") then
- 	 the_file = trim(data_dir_input_grid) // "/test.grib2"
+ 	 the_file = "./test.grib2"
  endif
  geo_file = trim(data_dir_input_grid) // "/" // trim(geogrid_file_input_grid)
  sfc_file = trim(data_dir_input_grid) // "/" // trim(sfc_files_input_grid(1))
@@ -3434,7 +3434,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = 0.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3461,7 +3461,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3487,7 +3487,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3514,7 +3514,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3541,7 +3541,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3568,7 +3568,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
@@ -3595,7 +3595,7 @@ if (localpet == 0) then
 				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
 									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
-				dummy2d(:,:) = -999.0_esmf_kind_r4
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
 		endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)

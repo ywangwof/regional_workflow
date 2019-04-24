@@ -3284,8 +3284,8 @@
 		 if (localpet == 0) then
 			 dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
 
-			 ! if the data is all -999, then it was never read in from file, and so don't write
-			 if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			 ! if the data is all missing, then it was never read in from file, and so don't write
+			 if (dum2d(1,1) > -9999.0) then
 				 error = nf90_def_var(ncid, 'canopy', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_canopy)
 				 call netcdf_err(error, 'DEFINING CANOPY' )
 				 error = nf90_put_att(ncid, id_canopy, "long_name", "canopy")
@@ -3309,7 +3309,7 @@
 		 if (localpet == 0) then
 			 dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
 
-			 if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			 if (dum2d(1,1) > -9999.0) then
 				 error = nf90_def_var(ncid, 'f10m', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_f10m)
 				 call netcdf_err(error, 'DEFINING F10M' )
 				 error = nf90_put_att(ncid, id_f10m, "long_name", "f10m")
@@ -3329,7 +3329,7 @@
 
    if (localpet == 0) then
 			dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			if (dum2d(1,1) > -9999.0) then
 				error = nf90_def_var(ncid, 'ffmm', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_ffmm)
 				call netcdf_err(error, 'DEFINING FFMM' )
 				error = nf90_put_att(ncid, id_ffmm, "long_name", "ffmm")
@@ -3360,7 +3360,7 @@
 
    if (localpet == 0) then
    		dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			if (dum2d(1,1) > -9999.0) then
 				error = nf90_def_var(ncid, 'tprcp', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_tprcp)
 				call netcdf_err(error, 'DEFINING TPRCP' )
 				error = nf90_put_att(ncid, id_tprcp, "long_name", "tprcp")
@@ -3393,7 +3393,7 @@
 
 		if (localpet == 0) then
 			dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			if (dum2d(1,1) > -9999.0) then
 				error = nf90_def_var(ncid, 'uustar', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_uustar)
 				call netcdf_err(error, 'DEFINING UUSTAR' )
 				error = nf90_put_att(ncid, id_uustar, "long_name", "uustar")
@@ -3416,7 +3416,7 @@
 
    if (localpet == 0) then
 			dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			if (dum2d(1,1) > -9999.0) then
 				error = nf90_def_var(ncid, 'fice', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_fice)
 				call netcdf_err(error, 'DEFINING FICE' )
 				error = nf90_put_att(ncid, id_fice, "long_name", "fice")
@@ -3437,7 +3437,7 @@
 
    if (localpet == 0) then
    		dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then
+			if (dum2d(1,1) > -9999.0) then
 				error = nf90_def_var(ncid, 'hice', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_hice)
 				call netcdf_err(error, 'DEFINING HICE' )
 				error = nf90_put_att(ncid, id_hice, "long_name", "hice")
@@ -3458,7 +3458,7 @@
 
    if (localpet == 0) then
    		dum2d(:,:) = data_one_tile(istart:iend, jstart:jend)
-			if (dum2d(1,1) /= -999.0_esmf_kind_r8) then   
+			if (dum2d(1,1) > -9999.0) then   
 				error = nf90_def_var(ncid, 'tisfc', NF90_DOUBLE, (/dim_x,dim_y,dim_time/), id_tisfc)
 				call netcdf_err(error, 'DEFINING TISFC' )
 				error = nf90_put_att(ncid, id_tisfc, "long_name", "tisfc")
