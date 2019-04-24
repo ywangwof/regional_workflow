@@ -391,7 +391,6 @@
                             t2m_target_grid, &
                             polemethod=ESMF_POLEMETHOD_NONE, &
                             srctermprocessing=isrctermprocessing, &
-                            extrapmethod=ESMF_EXTRAPMETHOD_NEAREST_STOD, &
                             routehandle=regrid_bl_no_mask, &
                             regridmethod=method, rc=rc)
  if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
@@ -660,7 +659,7 @@
                             dstmaskvalues=(/0/), &
                             polemethod=ESMF_POLEMETHOD_NONE, &
                             srctermprocessing=isrctermprocessing, &
-                            unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+                            unmappedaction=ESMF_UNMAPPEDACTION_ignore, &
                             normtype=ESMF_NORMTYPE_FRACAREA, &
                             routehandle=regrid_seaice, &
                             regridmethod=method, &
@@ -709,6 +708,9 @@
                     farrayPtr=snow_depth_target_ptr, rc=rc)
  if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
     call error_handler("IN FieldGet", rc)
+
+  print*, "MIN, MAX SNWDPH AFTER SEA ICE REGRID = ", &
+   					minval(snow_depth_target_ptr), maxval(snow_depth_target_ptr)
 
  print*,"- CALL Field_Regrid for snow liq equiv."
  call ESMF_FieldRegrid(snow_liq_equiv_input_grid, &
@@ -780,7 +782,12 @@
 
    if (localpet == 0) then
      call search(data_one_tile, mask_target_one_tile, i_target, j_target, tile, 66)
+     
+     print*, "MIN, MAX SNWDPH AFTER SEA ICE INTERP AND SEARCH = ", &
+   					minval(data_one_tile), maxval(data_one_tile)
    endif
+   
+   
 
    print*,"- CALL FieldScatter FOR TARGET GRID SNOW DEPTH TILE: ", tile
    call ESMF_FieldScatter(snow_depth_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
@@ -896,6 +903,34 @@
                     farrayPtr=z0_target_ptr, rc=rc)
  if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
     call error_handler("IN FieldGet", rc)
+    
+ print*,"- CALL Field_Regrid for snow depth over water."
+ call ESMF_FieldRegrid(snow_depth_input_grid, &
+                       snow_depth_target_grid, &
+                       routehandle=regrid_water, &
+                       termorderflag=ESMF_TERMORDER_SRCSEQ, rc=rc)
+ if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+    call error_handler("IN FieldRegrid", rc)
+
+ print*,"- CALL FieldGet FOR TARGET snow depth."
+ call ESMF_FieldGet(snow_depth_target_grid, &
+                    farrayPtr=snow_depth_target_ptr, rc=rc)
+ if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+    call error_handler("IN FieldGet", rc)
+    
+ print*,"- CALL Field_Regrid for snow liq equiv."
+ call ESMF_FieldRegrid(snow_liq_equiv_input_grid, &
+                       snow_liq_equiv_target_grid, &
+                       routehandle=regrid_water, &
+                       termorderflag=ESMF_TERMORDER_SRCSEQ, rc=rc)
+ if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+    call error_handler("IN FieldRegrid", rc)
+
+ print*,"- CALL FieldGet FOR TARGET grid snow liq equiv."
+ call ESMF_FieldGet(snow_liq_equiv_target_grid, &
+                    farrayPtr=snow_liq_equiv_target_ptr, rc=rc)
+ if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+    call error_handler("IN FieldGet", rc)
 
  l = lbound(unmapped_ptr)
  u = ubound(unmapped_ptr)
@@ -903,7 +938,9 @@
  do ij = l(1), u(1)
    call ij_to_i_j(unmapped_ptr(ij), i_target, j_target, i, j)
    skin_temp_target_ptr(i,j) = -9999.9 
-   z0_target_ptr(i,j)        = -9999.9 
+   z0_target_ptr(i,j)        = -9999.9
+   snow_depth_target_ptr(i,j) = -9999.9 
+   snow_liq_equiv_target_ptr(i,j) = -9999.9
  enddo
 
  if (convert_nst) then
@@ -1239,6 +1276,38 @@
 
    print*,"- CALL FieldScatter FOR TARGET GRID Z0: ", tile
    call ESMF_FieldScatter(z0_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
+   if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+      call error_handler("IN FieldScatter", rc)
+      
+  ! snow depth
+
+   print*,"- CALL FieldGather FOR TARGET GRID SNOW DEPTH TILE: ", tile
+   call ESMF_FieldGather(snow_depth_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
+   if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+      call error_handler("IN FieldGather", rc)
+
+   if (localpet == 0) then
+     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 83)
+   endif
+
+   print*,"- CALL FieldScatter FOR TARGET GRID SNOW DEPTH: ", tile
+   call ESMF_FieldScatter(snow_depth_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
+   if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+      call error_handler("IN FieldScatter", rc)
+  
+  ! snow liquid eqivalent
+
+   print*,"- CALL FieldGather FOR TARGET GRID SNOW LIQUID EQUIVALENT TILE: ", tile
+   call ESMF_FieldGather(snow_liq_equiv_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
+   if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
+      call error_handler("IN FieldGather", rc)
+
+   if (localpet == 0) then
+     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 83)
+   endif
+
+   print*,"- CALL FieldScatter FOR TARGET GRID SNOW LIQUID EQUIVALENT: ", tile
+   call ESMF_FieldScatter(snow_liq_equiv_target_grid, data_one_tile, rootPet=0, tile=tile, rc=rc)
    if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
       call error_handler("IN FieldScatter", rc)
 
@@ -1585,6 +1654,8 @@
                        rc=rc)
  if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
     call error_handler("IN FieldRegrid", rc)
+    
+ 
 
  print*,"- CALL Field_Regrid for snow liq equiv over land."
  call ESMF_FieldRegrid(snow_liq_equiv_input_grid, &
@@ -1608,6 +1679,9 @@
                    farrayPtr=snow_depth_target_ptr, rc=rc)
  if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
     call error_handler("IN FieldGet", rc)
+  
+  print*, "MIN, MAX SNWDPH AFTER LAND REGRID  = ", &
+   					minval(snow_depth_target_ptr), maxval(snow_depth_target_ptr)
 
  print*,"- CALL FieldGet FOR TARGET snow liq equiv."
  call ESMF_FieldGet(snow_liq_equiv_target_grid, &
@@ -1648,6 +1722,8 @@
      land_target_one_tile = 0
      where(mask_target_one_tile == 1) land_target_one_tile = 1
      call search(data_one_tile, land_target_one_tile, i_target, j_target, tile, 66)
+     print*, "MIN, MAX SNWDPH AFTER LAND SEARCH  = ", &
+   					minval(data_one_tile), maxval(data_one_tile)
    endif
 
    print*,"- CALL FieldScatter FOR TARGET GRID SNOW DEPTH: ", tile

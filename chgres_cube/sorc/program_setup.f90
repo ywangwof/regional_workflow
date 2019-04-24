@@ -320,7 +320,7 @@ subroutine get_var_cond(var_name,this_miss_var_method,this_miss_var_value, &
 						"VARIABLE IF NOT FOUND IN EXTERNAL MODEL FILE"
 						
 		if(present(this_miss_var_method)) this_miss_var_method = "skip"
-		if(present(this_miss_var_value)) this_miss_var_value = -999.0_esmf_kind_r4
+		if(present(this_miss_var_value)) this_miss_var_value = -9999.9_esmf_kind_r4
 		if(present(this_field_var_name)) this_field_var_name = "NULL"
 		if(present(loc)) loc = 9999
 	else

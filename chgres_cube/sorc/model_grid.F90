@@ -326,12 +326,14 @@
  
  subroutine define_input_grid_grib2(localpet, npets)
 
+
  use netcdf
  use wgrib2api
  use program_setup, only       : grib2_file_input_grid, data_dir_input_grid, &
  																	external_model
-
  implicit none
+ 
+ include 'mpif.h'
 
  character(len=500)           :: the_file, metadata, temp_file
 
@@ -359,41 +361,34 @@
 
  the_file = trim(data_dir_input_grid) // "/" // grib2_file_input_grid
  inv_file = trim(data_dir_input_grid) // "/" // "chgres.inv"
- temp_file = trim(data_dir_input_grid) // "/test.grib2" 
+ temp_file = "./test.grib2" 
  
+ if (localpet==0) then
+	 if (trim(external_model) == "RAP") then
 
- if (trim(external_model) == "RAP") then
-
-		PRINT*, "CONVERTING DATA TO REGULAR LAT/LON GRID"
-		cmdline_msg="~/tmp/wgrib2-2/grib2/wgrib2/wgrib2 "//trim(the_file)//" -set_bitmap 1 -set_grib_type c3 &
-					 -new_grid_winds grid -new_grid_interpolation neighbor -new_grid latlon &
-					 -132.0:700:0.10 13.6:410:0.10  "//trim(temp_file)//" &> wgrb.out"
+			PRINT*, "CONVERTING DATA TO REGULAR LAT/LON GRID"
+			cmdline_msg="~/tmp/wgrib2-2/grib2/wgrib2/wgrib2 "//trim(the_file)//" -set_bitmap 1 -set_grib_type c3 &
+						 -new_grid_winds grid -new_grid_interpolation neighbor -new_grid latlon &
+						 -135.0:760:0.10 10:500:0.10  "//trim(temp_file)//" &> wgrb.out"
 				 
-		CALL execute_command_line(trim(cmdline_msg))
-
-		the_file = temp_file
-	
-		print*,'- OPEN AND INVENTORY NEW GRIB2 FILE: ',trim(the_file)
-		error=grb2_mk_inv(the_file,inv_file)
-		if (error /= 0) call error_handler("MAKING INVENTORY OF FILE", error)
- else
-	 print*,'- OPEN AND INVENTORY INPUT GRIB2 FILE: ',trim(the_file)
-	 error=grb2_mk_inv(the_file,inv_file)
-	 if (error /= 0) call error_handler("MAKING INVENTORY OF FILE", error)
+			CALL execute_command_line(trim(cmdline_msg))
+   endif
  endif
 
+ if (trim(external_model)=="RAP") the_file=temp_file
  
+ if (localpet==0) then
+	 print*,'- OPEN AND INVENTORY NEW GRIB2 FILE: ',trim(the_file)
+		error=grb2_mk_inv(the_file,inv_file)
+		if (error /= 0) call error_handler("MAKING INVENTORY OF FILE", error)
+ endif
  
-
- 	
- error = grb2_inq(the_file,inv_file,':PRES:','surface',nx=i_input, ny=j_input, & 
-              lat=latitude_one_tile, lon=longitude_one_tile, desc=metadata)
+	call MPI_Barrier(MPI_COMM_WORLD,error)
+	
+	error = grb2_inq(the_file,inv_file,':PRES:','surface',nx=i_input, ny=j_input, & 
+						lat=latitude_one_tile, lon=longitude_one_tile, desc=metadata)
  if (error < 0) call error_handler("READING FILE GRID INFORMATION", error)
- 
 
-
- 
- 
  print*,"- I/J DIMENSIONS OF THE INPUT GRID TILES ", i_input, j_input
 
  ip1_input = i_input + 1
