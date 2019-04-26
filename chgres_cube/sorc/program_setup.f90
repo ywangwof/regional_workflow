@@ -111,6 +111,7 @@
  character(len=20),  public      :: input_type="restart"
  character(len=20),  public      :: external_model="GFS" 	!Default assume gfs data
  character(len=20), public       :: phys_suite="GFS"			!Default to gfs physics suite
+ character(len=1000), public     :: wgrib2_path="wgrib2"
 
  integer, parameter, public      :: max_tracers=100
  integer, public                 :: num_tracers
@@ -182,7 +183,7 @@
                    regional, input_type, external_model, &
                    atm_weight_file, tracers, &
                    tracers_input, replace_o3mr, &
-                   replace_clwmr, phys_suite
+                   replace_clwmr, phys_suite, wgrib2_path
 
  print*,"- READ SETUP NAMELIST"
 

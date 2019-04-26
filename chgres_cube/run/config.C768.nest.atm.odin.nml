@@ -9,6 +9,7 @@
  mosaic_file_input_grid=""
  orog_dir_input_grid=""
  base_install_dir="/home/larissa.reames/fv3-new.write/chgres_cube"
+ wgrib2_path="/home/larissa.reames/tmp/wgrib2-2/grib2/wgrib2/wgrib2"
  orog_files_input_grid="C384_oro_data.tile1.nc","C384_oro_data.tile2.nc","C384_oro_data.tile3.nc","C384_oro_data.tile4.nc","C384_oro_data.tile5.nc","C384_oro_data.tile6.nc"
  data_dir_input_grid="/oldscratch/larissa.reames/runfv3/20180501_rap"
  grib2_file_input_grid="wrfnat_rr_12.grib2"

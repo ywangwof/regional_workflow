@@ -71,9 +71,9 @@
 ! Create esmf grid objects for input and target grids.
 !-------------------------------------------------------------------------
 
- call define_input_grid(localpet, npets)
-
  call define_target_grid(localpet, npets)
+ 
+ call define_input_grid(localpet, npets)
 
 !-------------------------------------------------------------------------
 ! Convert atmospheric fields
