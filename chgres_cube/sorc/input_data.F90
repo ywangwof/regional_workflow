@@ -38,7 +38,8 @@
                                     orog_files_input_grid, &
                                     tracers_input, num_tracers, &
                                     input_type, external_model, &
-                                    get_var_cond, read_from_input, tracers  
+                                    get_var_cond, read_from_input, tracers, &
+                                    convert_sfc  
 
  use model_grid, only             : input_grid,        &
                                     i_input, j_input,  &
@@ -1526,6 +1527,7 @@
  use wgrib2api
  
  use grib2_util, only										: read_vcoord, iso2sig, rh2spfh, convert_omega
+ use model_grid, only										: file_is_converted
  implicit none
 
  integer, intent(in)                   :: localpet
@@ -1569,8 +1571,8 @@
  											"rain_nc","water_nc","liq_aero","ice_aero", &
  											"sgs_tke"/)
  the_file = trim(data_dir_input_grid) // "/" // trim(grib2_file_input_grid)
- if(trim(external_model)=="RAP") then
- 	 the_file = trim(data_dir_input_grid) // "/test.grib2"
+ if (file_is_converted) then
+ 	 the_file = "./test.grib2"
  endif
 
  print*,"- READ ATMOS DATA FROM GRIB2 FILE: ", trim(the_file)
@@ -1581,10 +1583,10 @@
 
  !if (localpet==0) then
 	 !print*,"- READ VERTICAL LEVELS."
-	 iret = grb2_inq(the_file,inv_file,":UGRD:"," mb:")
+	 iret = grb2_inq(the_file,inv_file,":UGRD:","hybrid level:")
 	 !if (iret < 0) call error_handler("COUNTING VERTICAL LEVELS.", iret)
 	
-		if (iret > 0) then
+		if (iret <= 0) then
 			if (localpet == 0) print*,"DATA IS ON ISOBARIC LEVELS, WILL NEED TO CONVERT AFTER READING"
 			
 			lev_input=iret
@@ -2085,6 +2087,9 @@ if (localpet == 0) then
  	call convert_omega(wptr,presptr,tptr,qptr,clb,cub)
  	
  endif
+ 
+ if (localpet == 0 .and. file_is_converted .and. .not. convert_sfc) &
+ 			call system("rm "//trim(the_file))
 
  end subroutine read_input_atm_grib2_file
  
@@ -2758,7 +2763,8 @@ if (localpet == 0) then
 !---------------------------------------------------------------------------
 
  subroutine read_input_sfc_history_file(localpet)
-
+ 
+  
  implicit none
 
  integer, intent(in)             :: localpet
@@ -3107,6 +3113,7 @@ if (localpet == 0) then
 
   use wgrib2api
   use netcdf
+  use model_grid, only							: file_is_converted
   implicit none
 
  integer, intent(in)                   :: localpet
@@ -3129,7 +3136,7 @@ if (localpet == 0) then
  type(nemsio_gfile)                    :: gfile
 
  the_file = trim(data_dir_input_grid) // "/" // trim(grib2_file_input_grid)
- if (trim(external_model) == "RAP") then
+ if (file_is_converted) then
  	 the_file = "./test.grib2"
  endif
  geo_file = trim(data_dir_input_grid) // "/" // trim(geogrid_file_input_grid)
@@ -3344,7 +3351,17 @@ if (localpet == 0) then
 		   iret = nf90_close(ncid2d)
 		 endif
 	 endif
-	 if (rc < 0) call error_handler("READING SOIL TYPE.", rc)
+	 if (rc <= 0) then
+	   vname = "sotyp"
+	 	 call get_var_cond(vname,this_miss_var_method=method, this_miss_var_value=value, &
+ 												 loc=varnum)	
+	 	 call handle_grib_error(vname, slev ,method,value,varnum,rc, var= dummy2d)
+		 if (rc == 1) then ! missing_var_method == skip or no entry in varmap table
+				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. WILL USE CLIMATOLOGY. "//&
+									 "CHANGE SETTING IN VARMAP TABLE IF THIS IS NOT DESIRABLE."
+				dummy2d(:,:) = -9999.9_esmf_kind_r4
+		 endif
+	 endif
 	 
 	 dummy2d_8 = real(dummy2d,esmf_kind_r8)
 	 print*,'sotype ',maxval(dummy2d_8),minval(dummy2d_8)
@@ -3431,8 +3448,8 @@ if (localpet == 0) then
    if (rc <= 0) then
 			call handle_grib_error(vname, slev ,method,value,varnum,rc, var= dummy2d)
 			if (rc==1) then ! missing_var_method == skip or no entry in varmap table
-				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
-									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
+				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL BE"//&
+									 " REPLACED WITH CLIMO. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
 				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
@@ -3511,8 +3528,8 @@ if (localpet == 0) then
     if (rc <= 0) then
 			call handle_grib_error(vname, slev ,method,value,varnum,rc, var= dummy2d)
 			if (rc==1) then ! missing_var_method == skip or no entry in varmap table
-				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
-									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
+				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL "//&
+									 "REPLACED WITH CLIMO. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
 				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
@@ -3565,8 +3582,8 @@ if (localpet == 0) then
     if (rc <= 0) then
 			call handle_grib_error(vname, slev ,method,value,varnum,rc, var= dummy2d)
 			if (rc==1) then ! missing_var_method == skip or no entry in varmap table
-				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
-									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
+				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL"//&
+									 " REPLACED WITH CLIMO. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
 				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
@@ -3592,8 +3609,8 @@ if (localpet == 0) then
     if (rc <= 0) then
 			call handle_grib_error(vname, slev ,method,value,varnum,rc, var= dummy2d)
 			if (rc==1) then ! missing_var_method == skip or no entry in varmap table
-				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL NOT"//&
-									 " BE WRITTEN TO THE INPUT FILE. SET A FILL "// &
+				print*, "WARNING: "//trim(vname)//" NOT AVAILABLE IN FILE. THIS FIELD WILL BE"//&
+									 " REPLACED WITH CLIMO. SET A FILL "// &
 											"VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
 				dummy2d(:,:) = -9999.9_esmf_kind_r4
 			endif
@@ -3651,6 +3668,9 @@ if (localpet == 0) then
 
  deallocate(dummy3d)
  deallocate(dummy2d_8)
+ 
+ if (localpet==0 .and. file_is_converted) call system("rm "//trim(the_file)) 
+ 
  end subroutine read_input_sfc_grib2_file
 
 
@@ -4390,7 +4410,7 @@ subroutine handle_grib_error(vname,lev,method,value,varnum, iret,var)
 
 		return
 	endif
-	
+	print*, trim(method)
 	if (trim(method) == "skip" ) then
 		print*, "WARNING: SKIPPING ", trim(vname), " IN FILE"
 		read_from_input(varnum) = .false.

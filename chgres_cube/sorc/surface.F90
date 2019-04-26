@@ -192,7 +192,7 @@
 !---------------------------------------------------------------------------------------------
 
  
- !call rescale_soil_moisture
+ call rescale_soil_moisture
 
 !---------------------------------------------------------------------------------------------
 ! Compute liquid portion of total soil moisture.
@@ -2103,7 +2103,12 @@
       call error_handler("IN FieldGather", rc)
 
    if (localpet == 0) then
-     call search(data_one_tile, mask_target_one_tile, i_target, j_target, tile, 224)
+   	 print*, "MAX VAL SOIL TYPE = ", maxval(data_one_tile)
+     if (maxval(data_one_tile) > 0) then
+     		call search(data_one_tile, mask_target_one_tile, i_target, j_target, tile, 224)
+     else 
+     		where(data_one_tile < 0) data_one_tile= -9999.9_esmf_kind_r8
+     endif
    endif
 
    print*,"- CALL FieldScatter FOR SOIL TYPE FROM INPUT GRID, TILE: ", tile
@@ -2551,10 +2556,10 @@
 !---------------------------------------------------------------------------------------------
 ! Rescale soil moisture at points where the soil type between the input and output
 ! grids is different.  Caution, this logic assumes the input and target grids use the same
-! soil type dataset.
+! soil type dataset. Skips if input soil type doesn't exist at this point.
 !---------------------------------------------------------------------------------------------
 
-        if (soilt_target /= soilt_input) then
+        if (soilt_target /= soilt_input .and. soilt_input > 0) then
 
 !---------------------------------------------------------------------------------------------
 ! Rescale top layer.  First, determine direct evaporation part:
