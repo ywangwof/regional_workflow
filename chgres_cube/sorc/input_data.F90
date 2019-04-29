@@ -1539,7 +1539,8 @@
  																					trac_names_grib(ntrac_max), & 
  																					trac_names_vmap(ntrac_max), &
  																					tracers_input_grib(ntrac_max), tmpstr, & 
- 																					method, tracers_input_vmap(ntrac_max)
+ 																					method, tracers_input_vmap(ntrac_max), &
+ 																					tracers_default(ntrac_max)
  character(len=50), allocatable				  :: slevs(:)
  character (len=500) 										:: metadata
 
@@ -1567,6 +1568,10 @@
  trac_names_grib = (/":SPFH:",":CLWMR:", "O3MR",":CICE:", ":RWMR:",":SNMR:",":GRLE:", &
  							 ":TCDC:", ":NCCICE:",":SPNCR:", ":NCONCD:",":PMTC:",":PMTF:",":TKE:"/)
  trac_names_vmap = (/"sphum", "liq_wat","o3mr","ice_wat", &
+ 											"rainwat", "snowwat", "graupel", "cld_amt", "ice_nc", &
+ 											"rain_nc","water_nc","liq_aero","ice_aero", &
+ 											"sgs_tke"/)
+ tracers_default = (/"sphum", "liq_wat","o3mr","ice_wat", &
  											"rainwat", "snowwat", "graupel", "cld_amt", "ice_nc", &
  											"rain_nc","water_nc","liq_aero","ice_aero", &
  											"sgs_tke"/)
@@ -1610,7 +1615,7 @@
 		levp1_input = lev_input + 1
 		
 		! get the vertical levels, and search string by sequential reads
-		print*, "NUM INPUT LEVELS = ", lev_input
+
 		do i = 1,lev_input
 			iret=grb2_inq(the_file,inv_file,':UGRD:',trim(lvl_str),sequential=i-1,desc=metadata)
 			if (iret.ne.1) call error_handler(" IN SEQUENTIAL FILE READ.", iret)
@@ -1623,7 +1628,7 @@
 			slevs(i) = metadata(j-1:k)
 		
 			if (.not. isnative) rlevs(i) = rlevs(i) * 100.0
-			if (localpet == 0) print*, rlevs(i), slevs(i)
+
 		enddo
 
 	 allocate(vcoord(levp1_input,2))
@@ -1664,14 +1669,25 @@
    		 num_tracers = num_tracers + 1
    		 tracers_input_grib(num_tracers)=trac_names_grib(n)
 			 tracers_input_vmap(num_tracers)=trac_names_vmap(n)
+			 if (trim(tmpstr) == 'NULL') then
+			 	 tracers(num_tracers) = tracers_default(n)
+			 else
+			   tracers(num_tracers) = tmpstr
+			 endif
 		 endif
 	 else
      num_tracers = num_tracers + 1
    	 tracers_input_grib(num_tracers)=trac_names_grib(n)
 	   tracers_input_vmap(num_tracers)=trac_names_vmap(n)
+	   if (trim(tmpstr) == 'NULL') then
+			 tracers(num_tracers) = tracers_default(n)
+		 else
+			 tracers(num_tracers) = tmpstr
+		 endif
 	 endif
  enddo
 
+ if (localpet==0) print*, "NUMBER OF TRACERS IN FILE = ", num_tracers
 
  if (localpet == 0) print*,"- CALL FieldCreate FOR INPUT GRID SURFACE PRESSURE."
  ps_input_grid = ESMF_FieldCreate(input_grid, &
@@ -1786,7 +1802,6 @@
      vname = tracers_input_vmap(n)
      call get_var_cond(vname,this_miss_var_method=method, this_miss_var_value=value, &
  												 this_field_var_name=tmpstr,loc=varnum)
- 		 tracers(n) = tmpstr
  		 if (localpet == 0) then
      vname = trim(tracers_input_grib(n))
      do vlev = 1, lev_input
@@ -4317,9 +4332,7 @@ if (localpet == 0) then
     call error_handler("IN FieldGet", rc)
 
  temp=>windptr
- print*, "Size of windptr = ", shape(windptr)
- print*, "Size of temp = ", shape(temp)
- print*, "clb(1), cub(1) = ", clb(1), cub(1) 
+
  do i = clb(1), cub(1)
    do j = clb(2), cub(2)
      latrad = latptr(i,j) * acos(-1.) / 180.0
@@ -4410,7 +4423,7 @@ subroutine handle_grib_error(vname,lev,method,value,varnum, iret,var)
 
 		return
 	endif
-	print*, trim(method)
+
 	if (trim(method) == "skip" ) then
 		print*, "WARNING: SKIPPING ", trim(vname), " IN FILE"
 		read_from_input(varnum) = .false.
