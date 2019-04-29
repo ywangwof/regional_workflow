@@ -129,7 +129,7 @@
  integer, public                 :: cycle_day = -999
  integer, public                 :: cycle_hour = -999
  integer, public                 :: regional = 0
- integer, public                 :: halo_bndy = 4
+ integer, public                 :: halo_bndy = 5
  integer, public                 :: halo_blend = 0
 
  logical, public                 :: convert_atm = .false.
@@ -183,7 +183,8 @@
                    regional, input_type, external_model, &
                    atm_weight_file, tracers, &
                    tracers_input, replace_o3mr, &
-                   replace_clwmr, phys_suite, wgrib2_path
+                   replace_clwmr, phys_suite, wgrib2_path, &
+                   halo_bndy, halo_blend
 
  print*,"- READ SETUP NAMELIST"
 
@@ -225,8 +226,8 @@
 !-------------------------------------------------------------------------
 
  if (regional > 0) then
-   halo_bndy = 4
-   halo_blend = 0
+   !halo_bndy = 4
+   !halo_blend = 0
    print*,"- PROCESSING A REGIONAL NEST WITH A BOUNDARY HALO OF ",halo_bndy
    print*,"- PROCESSING A REGIONAL NEST WITH A BLENDING HALO OF ",halo_blend
  endif
