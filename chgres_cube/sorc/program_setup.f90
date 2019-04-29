@@ -129,7 +129,7 @@
  integer, public                 :: cycle_day = -999
  integer, public                 :: cycle_hour = -999
  integer, public                 :: regional = 0
- integer, public                 :: halo_bndy = 5
+ integer, public                 :: halo_bndy = 4
  integer, public                 :: halo_blend = 0
 
  logical, public                 :: convert_atm = .false.
