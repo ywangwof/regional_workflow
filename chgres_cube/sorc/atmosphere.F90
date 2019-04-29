@@ -403,7 +403,7 @@
    call create_number_concentrations
  endif
 
- call ESMF_FieldDestroy(landmask_target_grid, rc=rc)
+ !call ESMF_FieldDestroy(landmask_target_grid, rc=rc)
 !-----------------------------------------------------------------------------------
 ! Write target data to file.
 !-----------------------------------------------------------------------------------
@@ -1429,8 +1429,7 @@
 !     REAL(ESMF_KIND_R8) :: J2S 
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-!  FIND THE SURROUNDING INPUT INTERVAL FOR EACH OUTPUT POINT. 
-			PRINT*, "IN TERP2, CALL RSEARCH"          
+!  FIND THE SURROUNDING INPUT INTERVAL FOR EACH OUTPUT POINT.         
       CALL RSEARCH(IM,KM1,IXZ1,KXZ1,Z1,KM2,IXZ2,KXZ2,Z2,1,IM,K1S) 
 
 ! - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -1510,7 +1509,7 @@
                          ONE/(Z1D-Z1C)                                  
           ENDIF 
         ENDDO 
-  PRINT*, "INTERPOLATE INSIDE TERP3"
+
 !  INTERPOLATE.                                                         
         DO N=1,NM 
           DO I=1,IM 

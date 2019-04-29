@@ -421,7 +421,7 @@
 						 trim(adjustl(min_lonc))//":"//trim(adjustl(nlonc))//":0.10 "// &
 						 trim(adjustl(min_latc))//":"//trim(adjustl(nlatc))//":0.10  "// &
 						 trim(temp_file)//" &> wgrb.out"
-			print*, cmdline_msg
+			print*, trim(cmdline_msg)
 			CALL execute_command_line(trim(cmdline_msg))
 			
 			the_file = temp_file
@@ -1362,7 +1362,7 @@
  if (ESMF_FieldIsCreated(longitude_w_input_grid)) then
    call ESMF_FieldDestroy(longitude_w_input_grid, rc=rc)
  endif
- !call ESMF_FieldDestroy(landmask_target_grid, rc=rc)
+ call ESMF_FieldDestroy(landmask_target_grid, rc=rc)
  call ESMF_FieldDestroy(latitude_target_grid, rc=rc)
  call ESMF_FieldDestroy(latitude_s_target_grid, rc=rc)
  call ESMF_FieldDestroy(latitude_w_target_grid, rc=rc)

@@ -14,7 +14,7 @@ export NODES=2
 ulimit -s unlimited
 ulimit -a
 
-WORK_DIR=/oldscratch/larissa.reames/chgres_cube/20190425_nam
+WORK_DIR=/oldscratch/larissa.reames/chgres_cube/20190308_rap
 rm -fr $WORK_DIR
 mkdir -p $WORK_DIR
 cd $WORK_DIR
