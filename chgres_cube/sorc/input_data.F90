@@ -1543,7 +1543,7 @@
  character(len=50), allocatable				  :: slevs(:)
  character (len=500) 										:: metadata
 
- integer                               :: i, j, k, n
+ integer                               :: i, j, k, n, lvl_str_space_len
  integer                               :: rc, clb(3), cub(3)
  integer								               :: vlev, iret, num_tracers_file,varnum
  
@@ -1581,7 +1581,6 @@
  inquire(file=the_file,exist=iret)
  if (iret == 0) call error_handler("OPENING GRIB2 ATM FILE.", iret)
 
- !if (localpet==0) then
 	 !print*,"- READ VERTICAL LEVELS."
 	 iret = grb2_inq(the_file,inv_file,":UGRD:","hybrid level:")
 	 !if (iret < 0) call error_handler("COUNTING VERTICAL LEVELS.", iret)
@@ -1592,11 +1591,13 @@
 			lev_input=iret
 			lvl_str = "mb:" 
 			lvl_str_space = " mb:"
+			lvl_str_space_len = 4
 			isnative = 0
 		else
 			if (localpet == 0) PRINT*, "DATA IS ON NATIVE SIGMA/HYBRID LEVELS"
 			lvl_str = "hybrid level:"
 			lvl_str_space = " hybrid level:"
+			lvl_str_space_len = 14
 			isnative = .true.
 			iret = grb2_inq(the_file,inv_file,":UGRD:",lvl_str_space)
 			if (iret < 0) call error_handler("READING VERTICAL LEVEL TYPE.", iret)
@@ -1609,6 +1610,7 @@
 		levp1_input = lev_input + 1
 		
 		! get the vertical levels, and search string by sequential reads
+		print*, "NUM INPUT LEVELS = ", lev_input
 		do i = 1,lev_input
 			iret=grb2_inq(the_file,inv_file,':UGRD:',trim(lvl_str),sequential=i-1,desc=metadata)
 			if (iret.ne.1) call error_handler(" IN SEQUENTIAL FILE READ.", iret)
@@ -1629,8 +1631,6 @@
 	 call read_vcoord(isnative,rlevs,vcoord,lev_input,levp1_input,metadata,iret)
 	 if (iret /= 0) call error_handler("READING VERTICAL COORDINATE INFO.", iret)
  
-	 if (localpet == 0) print*, "vcoord = ", vcoord(:,2)
- 
 	 if (localpet == 0) print*,"- FIND SPFH OR RH IN FILE"
 	 iret = grb2_inq(the_file,inv_file,':SPFH:',lvl_str_space)
 
@@ -1649,8 +1649,6 @@
 		if (iret >= 1) trac_names_grib(4)=':CIMIXR:'
 	 endif
 
-	 
-	 
 	print*,"- COUNT NUMBER OF TRACERS TO BE READ IN BASED ON PHYSICS SUITE TABLE"
   num_tracers = 0
   !tracers_input(:)=""
@@ -1673,6 +1671,7 @@
 	   tracers_input_vmap(num_tracers)=trac_names_vmap(n)
 	 endif
  enddo
+
 
  if (localpet == 0) print*,"- CALL FieldCreate FOR INPUT GRID SURFACE PRESSURE."
  ps_input_grid = ESMF_FieldCreate(input_grid, &
@@ -3113,14 +3112,14 @@ if (localpet == 0) then
 
   use wgrib2api
   use netcdf
-  use model_grid, only							: file_is_converted
+  use model_grid, only									: file_is_converted, lsoil_target
   implicit none
 
  integer, intent(in)                   :: localpet
 
  character(len=250)                    :: the_file, geo_file, sfc_file
  character(len=20)                     :: vname, vname_file,slev
- 
+
  character(len=50)											:: method
 
  integer                               :: rc,ncid2d, varid, varnum, iret, i_tmp,j_tmp
@@ -3156,6 +3155,7 @@ if (localpet == 0) then
 	 lsoil_input = grb2_inq(the_file, inv_file, ':TSOIL:',' below ground:')
 	 print*, "- FILE HAS ", lsoil_input, " SOIL LEVELS"
 	 if (lsoil_input <= 0) call error_handler("COUNTING SOIL LEVELS.", rc)
+
 	 
 	 !We need to recreate the soil fields if we have something other than 4 levels
 	 if (lsoil_input /= 4) then

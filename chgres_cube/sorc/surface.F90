@@ -2719,6 +2719,26 @@
 !---------------------------------------------------------------------------------------------
  
  subroutine adjust_soil_levels
+ use model_grid, only				: lsoil_target
+ use input_data, only				: lsoil_input
+ use program_setup, only    : phys_suite
+ implicit none
+ character(len=1000) 			:: msg
+ integer									:: rc
+ 
+ !Set lsoil_target 
+ if (trim(phys_suite) == "RAP" .OR. trim(phys_suite) == "GSD") then
+ 	 lsoil_target = 9
+ endif
+
+ if (lsoil_input /= lsoil_target) then
+  rc = -1
+  
+  write(msg,'("NUMBER OF SOIL LEVELS IN INPUT (",I2,") and OUPUT &
+  						 (",I2,") MUST BE EQUAL")') lsoil_input, lsoil_target
+
+ 	call error_handler(trim(msg), rc)
+ endif
  
  !! Not sure what the proper method is here, but will need one branch for
  !! converting from 9 --> 4 levels and another for 4 --> 9 levels. 
@@ -3302,11 +3322,6 @@
  implicit none
 
  integer                     :: rc
- 
- !Set lsoil_target 
- if (trim(phys_suite) == "RAP" .OR. trim(phys_suite) == "GSD") then
- 	 lsoil_target = 9
- endif
 
  print*,"- CALL FieldCreate FOR TARGET GRID T2M."
  t2m_target_grid = ESMF_FieldCreate(target_grid, &

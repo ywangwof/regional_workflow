@@ -1151,6 +1151,7 @@
    error = nf90_def_var(ncid, 'delp', NF90_FLOAT, (/dim_lon,dim_lat,dim_lev/), id_delp)
    call netcdf_err(error, 'WRITING DELP' )
    do n = 1, num_tracers
+   	 print *, n, tracers(n)
      error = nf90_def_var(ncid, tracers(n), NF90_FLOAT, (/dim_lon,dim_lat,dim_lev/), id_tracers(n))
      call netcdf_err(error, 'WRITING TRACERS' )
    enddo
