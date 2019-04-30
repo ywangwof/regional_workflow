@@ -34,9 +34,9 @@ subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,metadata,i
 
   implicit none
   integer, intent(in)                       :: lev_input, levp1_input
-  logical, intent(in)												:: isnative
+  logical, intent(in)                       :: isnative
   character (len=500), intent(in)           :: metadata
-  real(esmf_kind_r8), intent(in)													:: vcoordi(lev_input)
+  real(esmf_kind_r8), intent(in)                          :: vcoordi(lev_input)
   real(esmf_kind_r8), intent(inout), allocatable  :: vcoordo(:,:)
   integer, intent(out)                      :: iret
   
@@ -60,7 +60,7 @@ subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,metadata,i
 
   if (isnative) then 
     if ((trim(external_model) .eq. 'HRRR' .or. trim(external_model) .eq. 'RAP') & 
-    		.and. lev_input == 50) then 
+        .and. lev_input == 50) then 
       if (idate(1) .le. 2018 .and. idate(2) .le. 7 .and. idate(3) .lt. 12) then !old sigma coordinates
         vcoordo(:,2) = eta
       else  !new hybrid levels
@@ -119,21 +119,21 @@ subroutine iso2sig(pi,sigma,lev_input,levp1_input,psptr,atm,clb,cub,nvars,iret)
 
   implicit none
   
-  real(esmf_kind_r8), intent(inout)            						:: pi(lev_input), & 
-  																												 sigma(levp1_input,2)
-  integer, intent(inout)                       						:: lev_input, levp1_input, &
-  																														clb(3),cub(3)
+  real(esmf_kind_r8), intent(inout)                       :: pi(lev_input), & 
+                                                           sigma(levp1_input,2)
+  integer, intent(inout)                                  :: lev_input, levp1_input, &
+                                                              clb(3),cub(3)
   type(atmdata), intent(inout)   :: atm(:)
   real(esmf_kind_r8), pointer, intent(inout)               :: psptr(:,:)
-  integer, intent(out)                      						:: iret
+  integer, intent(out)                                  :: iret
   
   
   real                                      :: msg
-  integer																		:: nvars
+  integer                                   :: nvars
 
  
   call p2hyo(pi,atm,psptr,100000.0,sigma(2:levp1_input,1),sigma(2:levp1_input,2), &
-  						lev_input,clb,cub,nvars,msg,4,iret)
+              lev_input,clb,cub,nvars,msg,4,iret)
   if (iret /= 0) call error_handler(" CONVERTING TO SIGMA COORDINATES. ONE OR BOTH PRESSURE &
                                     &ARRAYS ARE NOT IN TOP TO BOTTOM ORDER.", iret)
   iret = 0
@@ -174,8 +174,8 @@ end subroutine iso2sig
 !          xo     - pressure at hybrid levels [pa]
       
       integer, intent(inout)       :: lev_input
-      integer											 :: kflag,clb(3),cub(3)
-      real, intent(in)						 :: p0,xmsg
+      integer                      :: kflag,clb(3),cub(3)
+      real, intent(in)             :: p0,xmsg
       real, intent(inout)          :: pi(lev_input), hyao(lev_input), hybo(lev_input)
       type(atmdata), intent(inout):: xi(:)
       real(esmf_kind_r8), pointer, intent(inout)       :: psfc(:,:)
@@ -197,7 +197,7 @@ end subroutine iso2sig
           iret = 1
           return
       end if
-		
+    
 
       po(1)     = hyao(1)*p0     + hybo(1)*psfc(clb(1),clb(2))
       
@@ -217,7 +217,7 @@ end subroutine p2hyo
 subroutine p2hyb(pi,xi,psfc,p0,hyao,hybo,po,lev_input,clb,cub,nvar,iflag, kflag, xmsg)
   implicit none
   
-  integer, intent(in)					:: lev_input,clb(3),cub(3)
+  integer, intent(in)         :: lev_input,clb(3),cub(3)
   integer, intent(inout)      :: kflag
   real, intent(in)          :: p0,pi(lev_input), hyao(lev_input), hybo(lev_input), xmsg
   real, intent(inout)       :: po(lev_input)
@@ -241,8 +241,8 @@ subroutine p2hyb(pi,xi,psfc,p0,hyao,hybo,po,lev_input,clb,cub,nvar,iflag, kflag,
     nlo = nl-clb(2)+1
     
     do ml = clb(1),cub(1)
-			mlo = ml-clb(1)+1
-			
+      mlo = ml-clb(1)+1
+      
       do ko = clb(3),cub(3)
         po(ko) = hyao(ko)*p0 + hybo(ko)*psfc(ml,nl)
         xo(mlo,nlo,ko,1) = po(ko)     
@@ -259,7 +259,7 @@ subroutine p2hyb(pi,xi,psfc,p0,hyao,hybo,po,lev_input,clb,cub,nvar,iflag, kflag,
           if (po(ko) >= pimin .and. po(ko) <= pimax ) then     
             if (po(ko).ge.pi(ki) .and. po(ko).lt.pi(ki+1)) then
               do nv = 2,nvar
-              	xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,ki)            &
+                xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,ki)            &
                                +(xi(nv)%var(ml,nl,ki+1) -xi(nv)%var(ml,nl,ki) )*    &
                                 (log(po(ko))  -log(pi(ki)))/    &
                                 (log(pi(ki+1))-log(pi(ki)))
@@ -270,69 +270,69 @@ subroutine p2hyb(pi,xi,psfc,p0,hyao,hybo,po,lev_input,clb,cub,nvar,iflag, kflag,
               iflag = 1
             elseif (kflag == 1) then
               if (po(ko) < pimin) then
-								do nv = 2,nvar
-                	xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)
-								enddo
+                do nv = 2,nvar
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)
+                enddo
               elseif (po(ko) > pimax) then
-								do nv = 2,nvar
-									xo(mlo,nlo,ko,nv-1) = xi(nv)%var(ml,nl,lev_input)
-								enddo
+                do nv = 2,nvar
+                  xo(mlo,nlo,ko,nv-1) = xi(nv)%var(ml,nl,lev_input)
+                enddo
               end if
             elseif (kflag == 2) then
               if (po(ko) < pimin) then
-								do nv = 2,nvar
-                	xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)
-								enddo
+                do nv = 2,nvar
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)
+                enddo
               elseif (po(ko) > pimax) then
-              	do nv = 2,nvar
-									dxdp = (xi(nv)%var(ml,nl,lev_input) -xi(nv)%var(ml,nl,lev_input-1))*   &
-										 (log(pi(lev_input))-log(pi(lev_input-1)))
-									xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,lev_input)       &
-										 + (log(po(ko))-log(pi(lev_input)))*dxdp
-								enddo
+                do nv = 2,nvar
+                  dxdp = (xi(nv)%var(ml,nl,lev_input) -xi(nv)%var(ml,nl,lev_input-1))*   &
+                     (log(pi(lev_input))-log(pi(lev_input-1)))
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,lev_input)       &
+                     + (log(po(ko))-log(pi(lev_input)))*dxdp
+                enddo
 
               end if
             elseif (kflag == 3) then
               if (po(ko) < pimin) then
-              	do nv = 2,nvar
-                	dxdp = (xi(nv)%var(ml,nl,2) -xi(nv)%var(ml,nl,1))*      &
-											 (log(pi(2))-log(pi(1)))
-									xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)          &
-											 + (log(po(ko))-log(pi(1)))*dxdp
-								enddo
+                do nv = 2,nvar
+                  dxdp = (xi(nv)%var(ml,nl,2) -xi(nv)%var(ml,nl,1))*      &
+                       (log(pi(2))-log(pi(1)))
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)          &
+                       + (log(po(ko))-log(pi(1)))*dxdp
+                enddo
   
               elseif (po(ko) > pimax) then
-              	do nv = 2,nvar       
-									xo(mlo,nlo,ko,nv-1) = xi(nv)%var(ml,nl,lev_input)
-								enddo   
+                do nv = 2,nvar       
+                  xo(mlo,nlo,ko,nv-1) = xi(nv)%var(ml,nl,lev_input)
+                enddo   
               end if
             elseif (kflag == 4) then
               if (po(ko) < pimin) then
-              	do nv = 2,nvar
+                do nv = 2,nvar
 
-									dxdp = (xi(nv)%var(ml,nl,2) -xi(nv)%var(ml,nl,1))*       &
-												 (log(pi(2))-log(pi(1)))
-									xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)         &
-												 + (log(po(ko))-log(pi(1)))*dxdp
-  							enddo
+                  dxdp = (xi(nv)%var(ml,nl,2) -xi(nv)%var(ml,nl,1))*       &
+                         (log(pi(2))-log(pi(1)))
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,1)         &
+                         + (log(po(ko))-log(pi(1)))*dxdp
+                enddo
               elseif (po(ko) > pimax) then
-								do nv = 2,nvar
-									dxdp = (xi(nv)%var(ml,nl,lev_input) -xi(nv)%var(ml,nl,lev_input-1))*   &
-												 (log(pi(lev_input))-log(pi(lev_input-1)))
-									xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,lev_input)       &
-												 + (log(po(ko))-log(pi(lev_input)))*dxdp   
-								enddo
+                do nv = 2,nvar
+                  dxdp = (xi(nv)%var(ml,nl,lev_input) -xi(nv)%var(ml,nl,lev_input-1))*   &
+                         (log(pi(lev_input))-log(pi(lev_input-1)))
+                  xo(mlo,nlo,ko,nv) = xi(nv)%var(ml,nl,lev_input)       &
+                         + (log(po(ko))-log(pi(lev_input)))*dxdp   
+                enddo
               end if
             end if !kflag 
-    			endif ! outside pi bounds
+          endif ! outside pi bounds
          end do ! loop over klevs input
       end do  !loop over klevs output
     end do !loop over lon
   end do  !loop over lat
   
   do nv = 1,nvar
-		xi(nv)%var(clb(1):cub(1),clb(2):cub(2),clb(3):cub(3)) = xo(:,:,lev_input:1:-1,nv)
-	enddo
+    xi(nv)%var(clb(1):cub(1),clb(2):cub(2),clb(3):cub(3)) = xo(:,:,lev_input:1:-1,nv)
+  enddo
   
 
   deallocate(xo)
@@ -343,15 +343,15 @@ subroutine p2hyb(pi,xi,psfc,p0,hyao,hybo,po,lev_input,clb,cub,nvar,iflag, kflag,
     
   implicit none
   real,parameter      :: alpha=-9.477E-4 , & !K^-1,
- 												 Tnot=273.15, &  !K
- 												 Lnot=2.5008E6, & !JKg^-1
- 												 Rv=461.51, & !JKg^-1K^-1
- 												 esnot=611.21 !Pa
+                         Tnot=273.15, &  !K
+                         Lnot=2.5008E6, & !JKg^-1
+                         Rv=461.51, & !JKg^-1K^-1
+                         esnot=611.21 !Pa
   
   real(esmf_kind_r4), intent(inout)    :: rh_sphum(i_input,j_input)
-  real(esmf_kind_r8), intent(in)									:: p
-  real, pointer, intent(inout)			:: tptr(:,:,:)
-  integer							              :: lev_cur
+  real(esmf_kind_r8), intent(in)                  :: p
+  real, pointer, intent(inout)      :: tptr(:,:,:)
+  integer                           :: lev_cur
   real, dimension(i_input,j_input)  :: es, e
   real, pointer                     :: t(:,:)  
 
@@ -374,31 +374,31 @@ end subroutine RH2SPFH
 
 subroutine convert_omega(omega,p,t,q,clb,cub)
 
-	implicit none
-	real(esmf_kind_r8), pointer 		:: omega(:,:,:), p(:,:,:), t(:,:,:), q(:,:,:),omtmp,ptmp
-	
-	integer													:: clb(3), cub(3), i ,j, k
-	
-	real, parameter									:: Rd = 287.15_esmf_kind_r8, &  !JKg^-1K^-1
-																		 Rv=461.51_esmf_kind_r8, & !JKg^-1K^-1
-																		 g = 9.81_esmf_kind_r8 ! ms^-2
-																		 
-	real(esmf_kind_r8)							:: tv, w
-	
-	do k = clb(3),cub(3)
-	  do j = clb(2),cub(2)
-	  	do i = clb(1),cub(1)
-	  		tv = t(i,j,k)*(1+Rd/Rv*q(i,j,k))
-	  		omtmp=>omega(i,j,k)
-	  		ptmp=>p(i,j,k)
+  implicit none
+  real(esmf_kind_r8), pointer     :: omega(:,:,:), p(:,:,:), t(:,:,:), q(:,:,:),omtmp,ptmp
+  
+  integer                         :: clb(3), cub(3), i ,j, k
+  
+  real, parameter                 :: Rd = 287.15_esmf_kind_r8, &  !JKg^-1K^-1
+                                     Rv=461.51_esmf_kind_r8, & !JKg^-1K^-1
+                                     g = 9.81_esmf_kind_r8 ! ms^-2
+                                     
+  real(esmf_kind_r8)              :: tv, w
+  
+  do k = clb(3),cub(3)
+    do j = clb(2),cub(2)
+      do i = clb(1),cub(1)
+        tv = t(i,j,k)*(1+Rd/Rv*q(i,j,k))
+        omtmp=>omega(i,j,k)
+        ptmp=>p(i,j,k)
 
-	  		w = -1 * omtmp * Rd * tv / (ptmp * g)
-	  		omega(i,j,k)=w
-	  	enddo
-	  enddo
-	enddo
-	
-	
+        w = -1 * omtmp * Rd * tv / (ptmp * g)
+        omega(i,j,k)=w
+      enddo
+    enddo
+  enddo
+  
+  
 
 end subroutine convert_omega
  
