@@ -1287,7 +1287,7 @@
       call error_handler("IN FieldGather", rc)
 
    if (localpet == 0) then
-     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 83)
+     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 66)
    endif
 
    print*,"- CALL FieldScatter FOR TARGET GRID SNOW DEPTH: ", tile
@@ -1303,7 +1303,7 @@
       call error_handler("IN FieldGather", rc)
 
    if (localpet == 0) then
-     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 83)
+     call search(data_one_tile, water_target_one_tile, i_target, j_target, tile, 65)
    endif
 
    print*,"- CALL FieldScatter FOR TARGET GRID SNOW LIQUID EQUIVALENT: ", tile
