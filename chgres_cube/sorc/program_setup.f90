@@ -109,20 +109,20 @@
  character(len=6),   public      :: cres_target_grid = "NULL"
  character(len=500), public      :: atm_weight_file="NULL"
  character(len=20),  public      :: input_type="restart"
- character(len=20),  public      :: external_model="GFS" 	!Default assume gfs data
- character(len=20), public       :: phys_suite="GFS"			!Default to gfs physics suite
+ character(len=20),  public      :: external_model="GFS"  !Default assume gfs data
+ character(len=20), public       :: phys_suite="GFS"      !Default to gfs physics suite
  character(len=1000), public     :: wgrib2_path="wgrib2"
 
  integer, parameter, public      :: max_tracers=100
  integer, public                 :: num_tracers
  
- logical, allocatable, public		 :: read_from_input(:)
+ logical, allocatable, public    :: read_from_input(:)
  
  character(len=20), public       :: tracers(max_tracers)="NULL"
  character(len=20), public       :: tracers_input(max_tracers)="NULL"
- character(len=20), allocatable, public			 :: missing_var_methods(:)
- character(len=20), allocatable, public			 :: chgres_var_names(:)
- character(len=20), allocatable, public			 :: field_var_names(:)
+ character(len=20), allocatable, public      :: missing_var_methods(:)
+ character(len=20), allocatable, public      :: chgres_var_names(:)
+ character(len=20), allocatable, public      :: field_var_names(:)
  
  
  integer, public                 :: cycle_mon = -999
@@ -136,14 +136,14 @@
  logical, public                 :: convert_nst = .false.
  logical, public                 :: convert_sfc = .false.
  logical, public                 :: replace_o3mr = .true.
- logical, public								 :: replace_clwmr = .true.
+ logical, public                 :: replace_clwmr = .true.
 
  real, allocatable, public       :: drysmc_input(:), drysmc_target(:)
  real, allocatable, public       :: maxsmc_input(:), maxsmc_target(:)
  real, allocatable, public       :: refsmc_input(:), refsmc_target(:)
  real, allocatable, public       :: wltsmc_input(:), wltsmc_target(:)
  real, allocatable, public       :: bb_target(:),    satpsi_target(:)
- real, allocatable, public			 :: missing_var_values(:)
+ real, allocatable, public       :: missing_var_values(:)
  
 
  public :: read_setup_namelist
@@ -161,8 +161,8 @@
 
 
  namelist /config/ base_install_dir, &
- 									 varmap_tables_dir, &
- 									 mosaic_file_target_grid, &
+                   varmap_tables_dir, &
+                   mosaic_file_target_grid, &
                    fix_dir_target_grid,     &
                    orog_dir_target_grid,    &
                    orog_files_target_grid,  &
@@ -248,10 +248,10 @@ subroutine read_varmap
  implicit none
 
  integer                    :: istat, k, nvars
- character(len=500)					:: varmap_table_file
+ character(len=500)         :: varmap_table_file
  
  varmap_table_file = trim(base_install_dir) // "/" // trim(varmap_tables_dir) // "/" &
- 										// trim(phys_suite) // "phys_var_map.txt"
+                    // trim(phys_suite) // "phys_var_map.txt"
  
  print*
  print*,"OPEN VARIABLE MAPPING FILE: ", trim(varmap_table_file)
@@ -275,8 +275,8 @@ subroutine read_varmap
 
  
  do k = 1,nvars
- 	read(14, *, iostat=istat) chgres_var_names(k), field_var_names(k) , & 
- 													 missing_var_methods(k), missing_var_values(k)
+  read(14, *, iostat=istat) chgres_var_names(k), field_var_names(k) , & 
+                           missing_var_methods(k), missing_var_values(k)
  enddo
  
  if (istat /= 0) call error_handler("READING VARIABLE MAPPING FILE", istat)
@@ -296,42 +296,42 @@ subroutine read_varmap
 ! ----------------------------------------------------------------------------------------
 
 subroutine get_var_cond(var_name,this_miss_var_method,this_miss_var_value, &
-														this_field_var_name, loc)
-	use esmf
-	
-	implicit none
-	character(len=20)					:: var_name
-	
-	character(len=20), optional, intent(out) :: this_miss_var_method, &
-																							this_field_var_name
-	real(esmf_kind_r4), optional, intent(out):: this_miss_var_value																						
-	
-	integer, optional, intent(out)				:: loc
-	
-	integer																:: i, tmp(size(missing_var_methods))
-	
-	i=0
-	
-	tmp(:)=0
-	where(chgres_var_names==var_name) tmp=1
-	
-	i = maxloc(merge(1.,0.,chgres_var_names == var_name),dim=1) !findloc(chgres_var_names,var_name)
-	print*, i
-	if (maxval(tmp).eq.0) then
-		print*, "WARNING: NO ENTRY FOR ", trim(var_name), " IN VARMAP TABLE. WILL SKIP " // &
-						"VARIABLE IF NOT FOUND IN EXTERNAL MODEL FILE"
-						
-		if(present(this_miss_var_method)) this_miss_var_method = "skip"
-		if(present(this_miss_var_value)) this_miss_var_value = -9999.9_esmf_kind_r4
-		if(present(this_field_var_name)) this_field_var_name = "NULL"
-		if(present(loc)) loc = 9999
-	else
-		if(present(this_miss_var_method)) this_miss_var_method = missing_var_methods(i)
-		if(present(this_miss_var_value)) this_miss_var_value = missing_var_values(i)
-		if(present(this_field_var_name)) this_field_var_name = field_var_names(i)
-		if(present(loc)) loc = i
-	endif
-	
+                            this_field_var_name, loc)
+  use esmf
+  
+  implicit none
+  character(len=20)         :: var_name
+  
+  character(len=20), optional, intent(out) :: this_miss_var_method, &
+                                              this_field_var_name
+  real(esmf_kind_r4), optional, intent(out):: this_miss_var_value                                           
+  
+  integer, optional, intent(out)        :: loc
+  
+  integer                               :: i, tmp(size(missing_var_methods))
+  
+  i=0
+  
+  tmp(:)=0
+  where(chgres_var_names==var_name) tmp=1
+  
+  i = maxloc(merge(1.,0.,chgres_var_names == var_name),dim=1) !findloc(chgres_var_names,var_name)
+  print*, i
+  if (maxval(tmp).eq.0) then
+    print*, "WARNING: NO ENTRY FOR ", trim(var_name), " IN VARMAP TABLE. WILL SKIP " // &
+            "VARIABLE IF NOT FOUND IN EXTERNAL MODEL FILE"
+            
+    if(present(this_miss_var_method)) this_miss_var_method = "skip"
+    if(present(this_miss_var_value)) this_miss_var_value = -9999.9_esmf_kind_r4
+    if(present(this_field_var_name)) this_field_var_name = "NULL"
+    if(present(loc)) loc = 9999
+  else
+    if(present(this_miss_var_method)) this_miss_var_method = missing_var_methods(i)
+    if(present(this_miss_var_value)) this_miss_var_value = missing_var_values(i)
+    if(present(this_field_var_name)) this_field_var_name = field_var_names(i)
+    if(present(loc)) loc = i
+  endif
+  
 end subroutine get_var_cond
 
  subroutine calc_soil_params_driver(localpet)
