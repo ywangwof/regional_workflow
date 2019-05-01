@@ -74,7 +74,7 @@
      default_value = 30.0
    case (65) ! snow liq equivalent
      default_value = 0.0
-   case (66) ! snow depth
+   case (66) ! snow depth (mm)
      default_value = 0.0
    case (83) ! z0 (cm)
      default_value = 0.01

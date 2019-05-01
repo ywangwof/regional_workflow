@@ -392,7 +392,7 @@
 		! data on the input grid even where actual data doesn't exist. Future interpolation 
 		! routines set to error when no input data exists for an output point won't fail as
 		! they should.
-		
+		print*, 'temp num =', temp_num
 		if (trim(temp_num)=="3.32769") then !!if (trim(external_model) == "RAP" .or. trim(external_model) == "NAM") then
 			
 			! Read in these fields so we can make sure our interpolated grid is just large
