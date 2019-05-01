@@ -533,6 +533,8 @@
  print*,"- READ VERTICAL COORDINATE INFO."
  call nemsio_getfilehead(gfile, iret=iret, vcoord=vcoord)
  if (iret /= 0) call error_handler("READING VERTICAL COORDINATE INFO.", iret)
+ 
+ if (localpet==0) print*, vcoord
 
  print*,"- CALL FieldCreate FOR INPUT GRID SURFACE PRESSURE."
  ps_input_grid = ESMF_FieldCreate(input_grid, &
@@ -1562,7 +1564,7 @@
                                           
  real(esmf_kind_r4)                     :: value
  
- type(atmdata), dimension(4+num_tracers)   :: atm
+ type(atmdata), allocatable   :: atm(:)
  
  tracers(:) = "NULL"
  trac_names_grib = (/":SPFH:",":CLWMR:", "O3MR",":CICE:", ":RWMR:",":SNMR:",":GRLE:", &
@@ -1592,12 +1594,12 @@
   
     if (iret <= 0) then
       if (localpet == 0) print*,"DATA IS ON ISOBARIC LEVELS, WILL NEED TO CONVERT AFTER READING"
-      
-      lev_input=iret
       lvl_str = "mb:" 
       lvl_str_space = " mb:"
       lvl_str_space_len = 4
       isnative = 0
+      iret = grb2_inq(the_file,inv_file,":UGRD:",lvl_str_space)
+      lev_input=iret
     else
       if (localpet == 0) PRINT*, "DATA IS ON NATIVE SIGMA/HYBRID LEVELS"
       lvl_str = "hybrid level:"
@@ -1609,7 +1611,7 @@
       lev_input=iret
     endif
  !endif
- 
+ 		print*, "lev_input = ", lev_input
     allocate(slevs(lev_input))
     allocate(rlevs(lev_input))
     levp1_input = lev_input + 1
@@ -1626,13 +1628,14 @@
       read(metadata(j:k),*) rlevs(i)
     
       slevs(i) = metadata(j-1:k)
-    
+    	
       if (.not. isnative) rlevs(i) = rlevs(i) * 100.0
-
+			if (localpet==0) print*, "LEVEL = ", slevs
     enddo
 
    allocate(vcoord(levp1_input,2))
    if (localpet == 0) print*,"- READ VERTICAL COORDINATE INFO."
+   if (localpet == 0) print*, metadata
    call read_vcoord(isnative,rlevs,vcoord,lev_input,levp1_input,metadata,iret)
    if (iret /= 0) call error_handler("READING VERTICAL COORDINATE INFO.", iret)
  
@@ -1690,7 +1693,7 @@
      endif
    endif
  enddo
-
+ allocate(atm(num_tracers+4))
  if (localpet==0) print*, "NUMBER OF TRACERS IN FILE = ", num_tracers
 
  if (localpet == 0) print*,"- CALL FieldCreate FOR INPUT GRID SURFACE PRESSURE."
@@ -1841,7 +1844,7 @@
      enddo
    endif
 
-   if (localpet == 0) print*,"- CALL FieldScatter FOR INPUT ", trim(tracers_input(n))
+   if (localpet == 0) print*,"- CALL FieldScatter FOR INPUT ", trim(tracers_input_grib(n))
    call ESMF_FieldScatter(tracers_input_grid(n), dummy3d, rootpet=0, rc=rc)
    if(ESMF_logFoundError(rcToCheck=rc,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
       call error_handler("IN FieldScatter", rc)
@@ -3634,6 +3637,9 @@ if (localpet == 0) then
                       "VALUE IN THE VARMAP TABLE IF THIS IS NOT DESIRABLE."
         dummy2d(:,:) = -9999.9_esmf_kind_r4
       endif
+    else
+      ! Grib files have z0 (m), but fv3 expects z0(cm)
+      dummy2d(:,:) = dummy2d(:,:)*10.0
     endif
    dummy2d_8= real(dummy2d,esmf_kind_r8)
    print*,'sfcr ',maxval(dummy2d),minval(dummy2d)
