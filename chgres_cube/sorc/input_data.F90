@@ -2038,6 +2038,14 @@ if (localpet == 0) then
 
    if (localpet == 0) print*,"- CALL FieldGet FOR 3-D PRESSURE."
    nullify(presptr)
+   if (external_model == "RAP") then 
+     pt = 100.0
+   elseif (external_model == "RAP") then
+     pt = 200.0
+   elseif (external_model == "NAM") then
+     pt = 20.0
+   endif
+   
    call ESMF_FieldGet(pres_input_grid, &
                       computationalLBound=clb, &
                       computationalUBound=cub, &
@@ -2056,7 +2064,7 @@ if (localpet == 0) then
      do j = clb(2), cub(2)
        
        do k = 1,lev_input
-         presptr(i,j,k) = vcoord(k,1) + vcoord(k,2)*psptr(i,j)
+         presptr(i,j,k) = vcoord(k,2)*(psptr(i,j)-pt) + vcoord(k,1)*(p0-pt)+pt
        enddo
        
      enddo
