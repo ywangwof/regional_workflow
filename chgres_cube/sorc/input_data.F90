@@ -1638,8 +1638,10 @@
    allocate(vcoord(levp1_input,2))
    if (localpet == 0) print*,"- READ VERTICAL COORDINATE INFO."
    if (localpet == 0) print*, metadata
-   call read_vcoord(isnative,rlevs,vcoord,lev_input,levp1_input,metadata,iret)
+   call read_vcoord(isnative,rlevs,vcoord,lev_input,levp1_input,pt,metadata,iret)
    if (iret /= 0) call error_handler("READING VERTICAL COORDINATE INFO.", iret)
+   
+   if (localpet==0) print*, "VCOORD(:,1) = ", vcoord(:,1)
  
    if (localpet == 0) print*,"- FIND SPFH OR RH IN FILE"
    iret = grb2_inq(the_file,inv_file,':SPFH:',lvl_str_space)
@@ -2032,13 +2034,6 @@ if (localpet == 0) then
 
    if (localpet == 0) print*,"- CALL FieldGet FOR 3-D PRESSURE."
    nullify(presptr)
-   if (external_model == "HRRR") then 
-     pt = 1000.0
-   elseif (external_model == "RAP") then
-     pt = 2000.0
-   elseif (external_model == "NAM") then
-     pt = 200.0
-   endif
    
    call ESMF_FieldGet(pres_input_grid, &
                       computationalLBound=clb, &
@@ -2071,7 +2066,7 @@ if (localpet == 0) then
    print*,'psfc is ',clb(1),clb(2),psptr(clb(1),clb(2))
    print*,'pres is ',clb(1),clb(2),presptr(clb(1),clb(2),:)
 
-  print*,'pres check 1',localpet,maxval(atm(1)%var(:,:,1)),minval(atm(1)%var(:,:,1))
+  print*,'pres check 1',localpet,maxval(presptr(:,:,1)),minval(presptr(:,:,1))
   print*,'pres check lev',localpet,maxval(presptr(:,:,lev_input)),minval(presptr(:,:,lev_input))
  endif
  
