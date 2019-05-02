@@ -1563,6 +1563,8 @@
                                           qptr(:,:,:), wptr(:,:,:)
                                           
  real(esmf_kind_r4)                     :: value
+ real(esmf_kind_r8)										 :: pt
+ real(esmf_kind_r8), parameter				 :: p0 = 100000.0
  
  type(atmdata), allocatable   :: atm(:)
  
@@ -2024,26 +2026,18 @@ if (localpet == 0) then
   
   call iso2sig(rlevs,vcoord,lev_input,levp1_input,psptr,atm,clb,cub,4+num_tracers, iret)
   deallocate(vcoord)
-  
-  if (localpet == 0) then
-   print*,'psfc is ',clb(1),clb(2),psptr(clb(1),clb(2))
-   print*,'pres is ',clb(1),clb(2),atm(1)%var(clb(1),clb(2),:)
-
-  print*,'pres check 1',localpet,maxval(atm(1)%var(:,:,1)),minval(atm(1)%var(:,:,1))
-  print*,'pres check lev',localpet,maxval(atm(1)%var(:,:,lev_input)),minval(atm(1)%var(:,:,lev_input))
- endif
 
  else
    if (localpet == 0) print*,"- COMPUTE 3-D PRESSURE."
 
    if (localpet == 0) print*,"- CALL FieldGet FOR 3-D PRESSURE."
    nullify(presptr)
-   if (external_model == "RAP") then 
-     pt = 100.0
+   if (external_model == "HRRR") then 
+     pt = 1000.0
    elseif (external_model == "RAP") then
-     pt = 200.0
+     pt = 2000.0
    elseif (external_model == "NAM") then
-     pt = 20.0
+     pt = 200.0
    endif
    
    call ESMF_FieldGet(pres_input_grid, &
@@ -2071,6 +2065,14 @@ if (localpet == 0) then
    enddo
 
   deallocate(vcoord)
+ endif
+ 
+ if (localpet == 0) then
+   print*,'psfc is ',clb(1),clb(2),psptr(clb(1),clb(2))
+   print*,'pres is ',clb(1),clb(2),presptr(clb(1),clb(2),:)
+
+  print*,'pres check 1',localpet,maxval(atm(1)%var(:,:,1)),minval(atm(1)%var(:,:,1))
+  print*,'pres check lev',localpet,maxval(presptr(:,:,lev_input)),minval(presptr(:,:,lev_input))
  endif
  
 !---------------------------------------------------------------------------
