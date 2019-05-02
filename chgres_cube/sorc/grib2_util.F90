@@ -18,7 +18,7 @@ use esmf
 use netcdf
 use nemsio_module
 
-use program_setup, only   : tracers_input,num_tracers, external_model
+use program_setup, only   : tracers_input,num_tracers, external_model, base_install_dir
 
 use model_grid, only      : i_input,j_input, ip1_input, jp1_input
 
@@ -30,21 +30,21 @@ implicit none
 contains 
 
 
-subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,metadata,iret)
+subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,pt,metadata,iret)
 
   implicit none
   integer, intent(in)                       :: lev_input, levp1_input
   logical, intent(in)                       :: isnative
   character (len=500), intent(in)           :: metadata
-  real(esmf_kind_r8), intent(in)                          :: vcoordi(lev_input)
+  real(esmf_kind_r8), intent(in)            :: vcoordi(lev_input)
   real(esmf_kind_r8), intent(inout), allocatable  :: vcoordo(:,:)
+  real(esmf_kind_r8), intent(out)						:: pt
   integer, intent(out)                      :: iret
   
   integer :: k, idate(3)
   real :: b1, b2, b3, b4, b5, eta(51), etac
-  
-  eta = (/1.0000, 0.9980, 0.9940, 0.9870, 0.9750, 0.9590,  0.9390, 0.9160, 0.8920, 0.8650, 0.8350, 0.8020, 0.7660, 0.7270, 0.6850, 0.6400, 0.5920, 0.5420, 0.4970, 0.4565,  0.4205, 0.3877, 0.3582, 0.3317, 0.3078, 0.2863, 0.2670, &
-              0.2496, 0.2329, 0.2188, 0.2047, 0.1906, 0.1765, 0.1624,  0.1483, 0.1342, 0.1201, 0.1060, 0.0919, 0.0778, 0.0657,  0.0568, 0.0486, 0.0409, 0.0337, 0.0271, 0.0209, 0.0151,   0.0097, 0.0047, 0.0000/)
+  character (len=1000)											:: fname_coord
+  character (len=20)												:: lev_type
 
   !desc: D=YYYYMMDDHHmmss:RH:xxx mb:etc
   read(metadata(3:6),'(I4)') idate(1)
@@ -56,52 +56,36 @@ subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,metadata,i
     if ((trim(external_model) .eq. 'HRRR' .or. trim(external_model) .eq. 'RAP') & 
         .and. lev_input == 50) then 
       if (idate(1) .le. 2018 .and. idate(2) .le. 7 .and. idate(3) .lt. 12) then !old sigma coordinates
-        vcoordo(:,2) = eta
+        lev_type = "sigma"
       else  !new hybrid levels
-        etac = 0.2
-        b1 = 2. * etac**2 * ( 1. - etac )
-        b2 = -etac * ( 4. - 3. * etac - etac**3 )
-        b3 = 2. * ( 1. - etac**3 )
-        b4 = - ( 1. - etac**2 )
-        b5 = (1.-etac)**4
-        do k=1,lev_input
-          vcoordo(k,2) = ( b1 + b2*eta(k) + b3*eta(k)**2 + b4*eta(k)**3 ) / b5
-          if ( eta(k) .lt. etac ) then
-            vcoordo(k,2) = 0.
-          end if
-          if ( k .eq. 0 ) then
-            vcoordo(k,2) = 1.
-          else if ( k .eq. lev_input ) then
-            vcoordo(k,2) = 0.
-          end if
-          vcoordo(k,1) = eta(k)- vcoordo(k,2)
-        enddo
-        
-      endif !end date check for sigma vs. hybrid
-    elseif(trim(external_model) == "NAM" .and. lev_input == 60) then
-
-      vcoordo(:,2) = & 
-      (/0.0,1.0994*10**-02,2.2004001*10**-02,3.3054002*10**-02,4.4144001*10**-02, 5.5294003*10**-02, &
-        6.6593997*10**-02,7.8093998*10**-02,8.9794002*10**-02,0.101894,0.114294,0.127094,0.140494,&
-        0.154394,0.169294,0.185494,0.203594,0.223694,0.245894,0.270694,0.297694,0.326694,&
-        0.356994,0.388094,0.419694,0.451894,0.484394,0.517114,0.549714,0.582114,0.6142139,&
-        0.645814,0.676614,0.706714,0.735314,0.762114,0.786714,0.809114,0.8293139,0.8471141,&
-        0.862914,0.876814,0.888811,0.899507,0.9084039,0.916402,0.923599,0.930397,0.936895,&
-        0.943093,0.9489909,0.954689,0.960187,0.965486,0.9706841,0.9757819,0.980781,0.985679,&
-        0.9904789,0.995253,1.0/)
+        lev_type = "hybrid"
+      endif
+    elseif (trim(external_model) .eq. 'NAM' .and. lev_input == 60) then
+      lev_type = "hybrid"
     else  
-      write(*,*) "this code only supports rap/hrrr data w/ 50 sigma/hybrid coordinate levels &
-      or NAM data with 60 levels"
       iret = 1
-      return
+      call error_handler("This code only supports rap/hrrr data w/ 50 sigma/hybrid coordinate levels &
+      or NAM data with 60 hybrid coordinate levels", iret)
     endif ! end check for mname and num levels
     
+    fname_coord = trim(base_install_dir)//"/fix/fix_chgres/vertical_coordinate_"// &
+    						trim(external_model)//"-"//trim(lev_type)//".txt"
+    print*, fname_coord
+		open(14, file=trim(fname_coord), form='formatted', iostat=iret)
+		
+		if (iret /= 0) call error_handler("OPENING VERTICAL COORDINATE FILE", iret)
+
+
+		read(14, *, iostat=iret) pt
+		if (iret /= 0) call error_handler("READING VERTICAL COORDINATE FILE", iret)
+
+		do k = 1, levp1_input
+			read(14, *, iostat=iret) vcoordo(k,1), vcoordo(k,2)
+		enddo    
   else ! create sigma from isobaric levels
       vcoordo(2:levp1_input,2) = vcoordi / 100000.0
       vcoordo(1,2) = 0.0
   endif ! end native vs. non-native check
-
-  vcoordo(:,1) = 0.0
   iret=0
 
 end subroutine read_vcoord

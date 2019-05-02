@@ -253,7 +253,7 @@ subroutine read_varmap
  varmap_table_file = trim(base_install_dir) // "/" // trim(varmap_tables_dir) // "/" &
                     // trim(phys_suite) // "phys_var_map.txt"
  
- print*
+
  print*,"OPEN VARIABLE MAPPING FILE: ", trim(varmap_table_file)
  open(14, file=trim(varmap_table_file), form='formatted', iostat=istat)
  if (istat /= 0) then
