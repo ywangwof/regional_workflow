@@ -118,11 +118,10 @@
  use input_data, only                : cleanup_input_sfc_data, &
                                        cleanup_input_nst_data, &
                                        read_input_sfc_data, &
-                                       read_input_nst_data, lsoil_input
+                                       read_input_nst_data
 
  use program_setup, only             : calc_soil_params_driver, &
-                                       convert_nst, phys_suite, read_from_input, &
-                                       input_type
+                                       convert_nst, input_type
 
  use static_data, only               : get_static_fields, &
                                        cleanup_static_fields
@@ -3317,7 +3316,6 @@
  subroutine create_surface_esmf_fields
 
  use model_grid, only         : target_grid, lsoil_target
- use program_setup, only      : phys_suite
 
  implicit none
 

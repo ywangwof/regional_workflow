@@ -139,8 +139,7 @@
  use program_setup, only       : data_dir_input_grid, &
                                  atm_files_input_grid, &
                                  sfc_files_input_grid, &
-                                 convert_atm, convert_sfc, &
-                                 external_model
+                                 convert_atm, convert_sfc
 
  implicit none
 
@@ -331,7 +330,7 @@
  use netcdf
  use wgrib2api
  use program_setup, only       : grib2_file_input_grid, data_dir_input_grid, &
- 																	external_model, wgrib2_path
+ 																	wgrib2_path, base_install_dir, external_model
  implicit none
  
  include 'mpif.h'
@@ -340,33 +339,27 @@
 
  integer, intent(in)          :: localpet, npets
 
- integer                      :: error, extra, i, j, ii, jj, clb(2), cub(2) !, decomptile(2)
+ integer                      :: error, extra, i, j, clb(2), cub(2) !, decomptile(2)
  !integer, allocatable         :: decomptile(:,:)
 
  !integer(esmf_kind_i8), allocatable    :: landmask_one_tile(:,:) !allocated but not used
 
  real(esmf_kind_r4), allocatable       :: latitude_one_tile(:,:)
- real(esmf_kind_r8), allocatable       :: latitude_s(:,:)
- real(esmf_kind_r8), allocatable       :: latitude_w(:,:)
  real(esmf_kind_r4), allocatable       :: longitude_one_tile(:,:)
- real(esmf_kind_r8), allocatable       :: longitude_s(:,:)
- real(esmf_kind_r8), allocatable       :: longitude_w(:,:)
  real(esmf_kind_r8)										 :: lat_target(i_target,j_target), &
  																					lon_target(i_target,j_target)
  real(esmf_kind_r8)               		 :: deltalon
- integer 															 :: nlat, nlon, min_lat, min_lon, max_lat, max_lon 
- real(esmf_kind_r8), pointer					 :: lat_src_ptr(:,:), lon_src_ptr(:,:), &
-	 																				lat_target_ptr(:,:), lon_target_ptr(:,:)
- 
+ integer 															 :: ncid,id_var, id_dim 
+ real(esmf_kind_r8), pointer					 :: lat_src_ptr(:,:), lon_src_ptr(:,:)
  type(esmf_polekind_flag)         :: polekindflag(2)
- character(len=1000)            :: cmdline_msg, temp_msg, min_latc, min_lonc, nlatc,nlonc
+ character(len=1000)            :: cmdline_msg, temp_msg
  character(len=10)							:: temp_num
 
  num_tiles_input_grid = 1
 
  inv_file = trim(data_dir_input_grid) // "/" // "chgres.inv"
  the_file = trim(data_dir_input_grid) // "/" // grib2_file_input_grid
- temp_file = "./test.grib2"
+ temp_file = trim(base_install_dir)//"/fix/fix_chgres/latlon_grid3.32769.nc" 
   
  call ESMF_FieldGather(latitude_target_grid, lat_target, rootPet=0, tile=1, rc=error)
  if(ESMF_logFoundError(rcToCheck=error,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
@@ -375,7 +368,7 @@
  if(ESMF_logFoundError(rcToCheck=error,msg=ESMF_LOGERR_PASSTHRU,line=__line__,file=__file__)) &
       call error_handler("IN FieldGather", error)
 
- if (localpet==0) then
+ !if (localpet==0) then
  		! Check for the grid template number to see if wgrib2 can access the lat/lon arrays
  		cmdline_msg = trim(wgrib2_path)//" "//trim(the_file)//" -d 1 -Sec3 &> temp.out"
  		call system(cmdline_msg)
@@ -387,71 +380,58 @@
  		temp_num=temp_msg(i:j-1)
 		
 		! Wgrib2 can't properly read the lat/lon arrays of data on NCEP rotated lat/lon 
-		! grids, so interpolate to a new regular lat/lon grid. Note that this will make it 
-		! difficult to know if our input grid is too small because there will be points of 
-		! data on the input grid even where actual data doesn't exist. Future interpolation 
-		! routines set to error when no input data exists for an output point won't fail as
-		! they should.
+		! grids, so read in lat/lon from fixed coordinate file 
 		print*, 'temp num =', temp_num
 		if (trim(temp_num)=="3.32769") then !!if (trim(external_model) == "RAP" .or. trim(external_model) == "NAM") then
-			
-			! Read in these fields so we can make sure our interpolated grid is just large
-			! enough for the output grid. 
-			
-			min_lat = floor(minval(lat_target))-1
-			print*, min_lat
-			max_lat = ceiling(maxval(lat_target))+1
-			print*, max_lat
-			nlat = ceiling((max_lat - min_lat)/0.1/10.0)*10.0
-			print*, nlat
-			write(min_latc,"(I4)") min_lat
-			write(nlatc,"(I4)") nlat
-			
-			min_lon = floor(minval(lon_target))-1
-			max_lon = ceiling(maxval(lon_target))+1
-			nlon = ceiling((max_lon - min_lon)/0.1/10.0)*10.0
-			print*, nlon
-			write(min_lonc,"(I4)") min_lon
-			write(nlonc,"(I4)") nlon
-			
-			
-			PRINT*, "CONVERTING DATA TO REGULAR LAT/LON GRID"
-			cmdline_msg=trim(wgrib2_path)//" "//trim(the_file)//" -set_bitmap 1 -set_grib_type c3 &
-						 -new_grid_winds grid -new_grid_interpolation neighbor -new_grid latlon "// &
-						 trim(adjustl(min_lonc))//":"//trim(adjustl(nlonc))//":0.10 "// &
-						 trim(adjustl(min_latc))//":"//trim(adjustl(nlatc))//":0.10  "// &
-						 trim(temp_file)//" &> wgrb.out"
-			print*, trim(cmdline_msg)
-			CALL execute_command_line(trim(cmdline_msg))
-			
-			file_is_converted = 1
-			
-			print*, "on localpet=0"
-			print*, the_file
-			print*, file_is_converted
 
-   endif
+
+			 error=nf90_open(trim(temp_file),nf90_nowrite,ncid)
+ 			 call netcdf_err(error, 'opening: '//trim(temp_file))
+ 			 
+ 			 error=nf90_inq_dimid(ncid, 'nx', id_dim)
+			 call netcdf_err(error, 'reading nx id' )
+			 error=nf90_inquire_dimension(ncid,id_dim,len=i_input)
+			 call netcdf_err(error, 'reading nx value' )
+
+			 error=nf90_inq_dimid(ncid, 'ny', id_dim)
+			 call netcdf_err(error, 'reading ny id' )
+			 error=nf90_inquire_dimension(ncid,id_dim,len=j_input)
+			 call netcdf_err(error, 'reading ny value' )
+			 
+ 			 allocate(longitude_one_tile(i_input,j_input))
+			 allocate(latitude_one_tile(i_input,j_input))
+
+ 			 error=nf90_inq_varid(ncid, 'gridlat', id_var)
+			 call netcdf_err(error, 'reading field id' )
+			 error=nf90_get_var(ncid, id_var, latitude_one_tile)
+			 call netcdf_err(error, 'reading field' )
+			 
+			 error=nf90_inq_varid(ncid, 'gridlon', id_var)
+			 call netcdf_err(error, 'reading field id' )
+			 error=nf90_get_var(ncid, id_var, longitude_one_tile)
+			 call netcdf_err(error, 'reading field' )
+			 
+			 print*,'- OPEN AND INVENTORY GRIB2 FILE: ',trim(the_file)
+			error=grb2_mk_inv(the_file,inv_file)
+			if (error /=0) call error_handler("OPENING GRIB2 FILE",error)
+
+   else
+
+		print*,'- OPEN AND INVENTORY GRIB2 FILE: ',trim(the_file)
+		error=grb2_mk_inv(the_file,inv_file)
+		if (error /=0) call error_handler("OPENING GRIB2 FILE",error)
+	
+		error = grb2_inq(the_file,inv_file,':PRES:','surface',nx=i_input, ny=j_input, & 
+						lat=latitude_one_tile, lon=longitude_one_tile, desc=metadata)
+								
  endif
  
- call MPI_Barrier(MPI_COMM_WORLD,error)
- !call MPI_BCAST(the_file,12,MPI_CHARACTER,0,MPI_COMM_WORLD,error)
- call MPI_BCAST(file_is_converted,1,MPI_INTEGER,0,MPI_COMM_WORLD,error)
- if (file_is_converted) then
-   the_file=temp_file
- endif
- print*, the_file
- print*, file_is_converted
- !if (trim(external_model)=="RAP" .or. trim(external_model) == "NAM") the_file=temp_file
- 
-	
-	
-	print*,'- OPEN AND INVENTORY GRIB2 FILE: ',trim(the_file)
-	error=grb2_mk_inv(the_file,inv_file)
-	if (error /=0) call error_handler("OPENING GRIB2 FILE",error)
-	
-	error = grb2_inq(the_file,inv_file,':PRES:','surface',nx=i_input, ny=j_input, & 
-					lat=latitude_one_tile, lon=longitude_one_tile, desc=metadata)
-
+ !if (localpet/=0) then
+	!	deallocate(longitude_one_tile)
+	!	deallocate(latitude_one_tile)
+	!	allocate(longitude_one_tile(0,0))
+	!	allocate(latitude_one_tile(0,0))
+	!endif
  print*,"- I/J DIMENSIONS OF THE INPUT GRID TILES ", i_input, j_input
 
  ip1_input = i_input + 1
