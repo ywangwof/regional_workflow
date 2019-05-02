@@ -42,7 +42,6 @@ subroutine read_vcoord(isnative,vcoordi,vcoordo,lev_input,levp1_input,pt,metadat
   integer, intent(out)                      :: iret
   
   integer :: k, idate(3)
-  real :: b1, b2, b3, b4, b5, eta(51), etac
   character (len=1000)											:: fname_coord
   character (len=20)												:: lev_type
 

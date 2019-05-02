@@ -1548,7 +1548,7 @@
 
  integer                               :: i, j, k, n, lvl_str_space_len
  integer                               :: rc, clb(3), cub(3)
- integer                               :: vlev, iret, num_tracers_file,varnum
+ integer                               :: vlev, iret,varnum
  
  
  logical                                :: conv_omega=.false., &
@@ -1580,9 +1580,9 @@
                       "rain_nc","water_nc","liq_aero","ice_aero", &
                       "sgs_tke"/)
  the_file = trim(data_dir_input_grid) // "/" // trim(grib2_file_input_grid)
- if (file_is_converted) then
-   the_file = "./test.grib2"
- endif
+ !if (file_is_converted) then
+ !  the_file = "./test.grib2"
+ !endif
 
  print*,"- READ ATMOS DATA FROM GRIB2 FILE: ", trim(the_file)
 
@@ -3139,7 +3139,7 @@ if (localpet == 0) then
 
   use wgrib2api
   use netcdf
-  use model_grid, only                  : file_is_converted, lsoil_target
+  use model_grid, only                  : file_is_converted
   implicit none
 
  integer, intent(in)                   :: localpet
@@ -3149,7 +3149,7 @@ if (localpet == 0) then
 
  character(len=50)                      :: method
 
- integer                               :: rc,ncid2d, varid, varnum, iret, i_tmp,j_tmp
+ integer                               :: rc,ncid2d, varid, varnum, iret
  
  real(esmf_kind_r4)                    :: value
 
@@ -3159,12 +3159,11 @@ if (localpet == 0) then
  real(esmf_kind_r8), allocatable       :: dummy2d_8(:,:)
  real(esmf_kind_r8), allocatable       :: dummy3d(:,:,:)
  
- type(nemsio_gfile)                    :: gfile
 
  the_file = trim(data_dir_input_grid) // "/" // trim(grib2_file_input_grid)
- if (file_is_converted) then
-   the_file = "./test.grib2"
- endif
+ !if (file_is_converted) then
+ !  the_file = "./test.grib2"
+ !endif
  geo_file = trim(data_dir_input_grid) // "/" // trim(geogrid_file_input_grid)
  sfc_file = trim(data_dir_input_grid) // "/" // trim(sfc_files_input_grid(1))
  

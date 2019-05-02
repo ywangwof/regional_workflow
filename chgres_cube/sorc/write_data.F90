@@ -2667,7 +2667,6 @@
  integer                        :: id_stc, id_smc, id_slc
  integer                        :: i_target_out, j_target_out
  integer                        :: istart, iend, jstart, jend
- integer                        :: loc
 
  integer(esmf_kind_i8), allocatable :: idata_one_tile(:,:)
 
