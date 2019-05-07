@@ -1,7 +1,7 @@
 # Takes lots of memory.  Use two nodes - six tasks per node.
 
 &config
- fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/make_hgrid_HRRR_like_fix_files"
+ fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/GFDL_grid_HRRR_like_fix_files_chgres_cube"
  mosaic_file_target_grid="/scratch3/BMC/det/beck/FV3-CAM/work_dirs/RAP/grid/C384_mosaic.nc"
  orog_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/work_dirs/RAP/shave"
  orog_files_target_grid="C384_oro_data.tile7.halo4.nc"
