@@ -4434,11 +4434,11 @@ subroutine handle_grib_error(vname,lev,method,value,varnum, iret,var)
     read_from_input(varnum) = .false.
     iret = 1
   elseif (trim(method) == "set_to_fill") then
-    print*, "WARNING: ,", trim(vname), " NOT AVILABLE AT LEVEL ", trim(lev), &
+    print*, "WARNING: ,", trim(vname), " NOT AVAILABLE AT LEVEL ", trim(lev), &
            ". SETTING EQUAL TO FILL VALUE OF ", value
     if(present(var)) var(:,:) = value
   elseif (trim(method) == "set_to_NaN") then
-    print*, "WARNING: ,", trim(vname), " NOT AVILABLE AT LEVEL ", trim(lev), &
+    print*, "WARNING: ,", trim(vname), " NOT AVAILABLE AT LEVEL ", trim(lev), &
            ". SETTING EQUAL TO NaNs"
     if(present(var)) var(:,:) = ieee_value(var,IEEE_QUIET_NAN)
   elseif (trim(method) == "stop") then
