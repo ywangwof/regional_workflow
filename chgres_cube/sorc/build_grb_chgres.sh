@@ -7,13 +7,13 @@ cwd=`pwd`
 USE_PREINST_LIBS=${USE_PREINST_LIBS:-"false"}
 if [ $USE_PREINST_LIBS = true ]; then
   export MOD_PATH=/scratch3/NCEPDEV/nwprod/lib/modulefiles
-  source ../../modulefiles/fv3sar_workflow/grb_chgres.$target
+  source ../../../modulefiles/fv3gfs/grb_chgres.$target
 else
   export MOD_PATH=${cwd}/lib/modulefiles
   if [ $target = wcoss_cray ]; then
     source ../modulefiles/fv3gfs/grb_chgres.${target}_userlib > /dev/null 2>&1
   else
-    source ../../modulefiles/fv3sar_workflow/grb_chgres.$target
+    source ../../../modulefiles/fv3gfs/grb_chgres.$target
   fi
 fi
 
@@ -67,7 +67,7 @@ else
   export OMPFLAGM=${OMPFLAGM:-"-qopenmp -auto"}
   #export INCS="-I${SFCIO_INC4} -I${LANDSFCUTIL_INCd} \
   #             -I${NEMSIO_INC} -I${NEMSIOGFS_INC} -I${GFSIO_INC4} -I${IP_INCd} ${NETCDF_INCLUDE} -I${WGRIB2API_INC}"
-  export INCS="-I${NEMSIO_INC} ${NETCDF_INCLUDE} -I${WGRIB2API_INC}"
+  export INCS="-I${NEMSIO_INC} ${NETCDF_INCLUDE} -I${WGRIB2API_INC} -I${SFCIO_INC4} -I${SIGIO_INC4}"
   #export LIBSM="${GFSIO_LIB4} \
   #              ${NEMSIOGFS_LIB} \
   #              ${NEMSIO_LIB} \
@@ -89,7 +89,10 @@ else
 		${SP_LIBd} \
 		${NETCDF_LDFLAGS_F} \
 		${WGRIB2API_LIB} \
-   		${WGRIB2_LIB}"
+   		${WGRIB2_LIB} \
+		${SIGIO_LIB4} \
+		${SFCIO_LIB4}"
+  	        
 		
   #make -f makefile clobber
   make -f Makefile_mine
