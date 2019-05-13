@@ -219,9 +219,9 @@ cat > fort.41 <<EOF
  cycle_day=${CDATE:6:2}
  cycle_hour=${CDATE:8:2}
  convert_atm=.true.
- convert_sfc=.true.
+ convert_sfc=.false.
  convert_nst=.false.
- regional=1
+ regional=2
  input_type="grib2"
  external_model="RAP"
  phys_suite="GSD"
