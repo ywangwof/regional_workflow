@@ -55,9 +55,9 @@ Variables that are not modified by the workflow generation script.
 <!ENTITY RSRC_MAKE_GRID_OROG    "<walltime>00:15:00</walltime>">
 <!ENTITY RSRC_GET_GFS_FILES     "<walltime>00:20:00</walltime>">
 <!ENTITY RSRC_MAKE_SURF_IC_BC0  "<walltime>00:10:00</walltime>">
-<!ENTITY RSRC_MAKE_BC1_TO_BCEND "<walltime>00:20:00</walltime>">
+<!ENTITY RSRC_MAKE_BC1_TO_BCEND "<walltime>00:50:00</walltime>">
 <!ENTITY RSRC_STAGE             "<walltime>00:10:00</walltime>">
-<!ENTITY RSRC_RUN_FV3SAR        "<walltime>06:00:00</walltime>">
+<!ENTITY RSRC_RUN_FV3SAR        "<walltime>07:30:00</walltime>">
 <!ENTITY RSRC_POST              "<walltime>00:30:00</walltime>">
 
 <!ENTITY RSRV_DEFAULT    "<queue>&QUEUE_DEFAULT;</queue><account>&ACCOUNT;</account>"> 

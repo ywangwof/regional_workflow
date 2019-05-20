@@ -182,6 +182,8 @@ rm_vrfy -f nemsusage.xml
 rm_vrfy -f fort.*
 rm_vrfy -f regional_*.tile7.nc
 rm_vrfy -f RESTART/*
+rm_vrfy -f qr*
+rm_vrfy -f freeze*
 #
 #-----------------------------------------------------------------------
 #

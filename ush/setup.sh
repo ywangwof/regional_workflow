@@ -706,23 +706,41 @@ case $predef_domain in
 
   elif [ "$grid_gen_method" = "JPgrid" ]; then
 
+#    lon_rgnl_ctr=-97.5
+#    lat_rgnl_ctr=38.5
+
+#    delx="3000.0"
+#    dely="3000.0"
+
+#    nx_T7=1800
+#    ny_T7=1120
+
+#    nhw_T7=6
+
+#    dt_atmos="50"
+
+#    layout_x="20"
+#    layout_y="20"
+#    write_tasks_per_group="20"
+#    blocksize="36"
+ 
     lon_rgnl_ctr=-97.5
     lat_rgnl_ctr=38.5
 
     delx="3000.0"
     dely="3000.0"
 
-    nx_T7=1800
-    ny_T7=1120
+    nx_T7=1734
+    ny_T7=1008
 
     nhw_T7=6
 
     dt_atmos="50"
 
-    layout_x="20"
-    layout_y="20"
-    write_tasks_per_group="20"
-    blocksize="36"
+    layout_x="34"
+    layout_y="24"
+    write_tasks_per_group="24"
+    blocksize="34"
 
   fi
 #
