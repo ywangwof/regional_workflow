@@ -213,7 +213,7 @@ cat > fort.41 <<EOF
  orog_dir_input_grid=""
  base_install_dir="${BASEDIR}/fv3sar_workflow/sorc/chgres_cube"
  wgrib2_path="$(which wgrib2)"
- ata_dir_input_grid="/scratch3/BMC/det/beck/FV3-CAM/run_dirs/2019042800"
+ data_dir_input_grid="/scratch3/BMC/det/beck/FV3-CAM/run_dirs/2019042800"
  grib2_file_input_grid="wrfnat_rr_${CDATE:8:2}.grib2"
  cycle_mon=${CDATE:4:2}
  cycle_day=${CDATE:6:2}
