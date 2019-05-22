@@ -2,34 +2,26 @@
 #
 #-----------------------------------------------------------------------
 #
-# This script generates:
-#
-# 1) A NetCDF initial condition (IC) file on a regional grid for the
-#    date/time on which the analysis files in the directory specified by
-#    INIDIR are valid.  Note that this file does not include data in the
-#    halo of this regional grid (that data is found in the boundary con-
-#    dition (BC) files).
-#
-# 2) A NetCDF surface file on the regional grid.  As with the IC file,
-#    this file does not include data in the halo.
-#
-# 3) A NetCDF boundary condition (BC) file containing data on the halo
-#    of the regional grid at the initial time (i.e. at the same time as
-#    the one at which the IC file is valid).
-#
-# 4) A NetCDF "control" file named gfs_ctrl.nc that contains infor-
-#    mation on the vertical coordinate and the number of tracers for
-#    which initial and boundary conditions are provided.
-#
-# All four of these NetCDF files are placed in the directory specified
-# by WORKDIR_ICSLBCS_CDATE, defined as
+# This script generates NetCDF lateral boundary condition (LBC) files 
+# that contain data for the halo region of a regional grid.  One file is
+# generated for each lateral boundary update time -- not including the 
+# initial (i.e. model start) time -- up to the end of the model run.  
+# For example, if the lateral boundary fields are to be updated every 3
+# hours (this update interval is determined by the variable LBC_UPDATE_-
+# INTVL_HRS) and the FV3SAR forecast is to run for 24 hours (the fore-
+# cast length is determined by the variable fcst_len_hrs), then a file 
+# is generated for each of the forecast hours 3, 6, 9, 12, 15, 18, and
+# 24 (but not hour 0 since that is handled by the script that generates 
+# the initial conditions file).  All the generated NetCDF LBC files are
+# placed in the directory WORKDIR_ICSLBCS_CDATE, defined as
 #
 #   WORKDIR_ICSLBCS_CDATE="$WORKDIR_ICSLBCS/$CDATE"
 #
-# where CDATE is the externally specified starting date and cycle hour
-# of the current forecast.
+# where CDATE is the externally specified starting date and hour-of-day
+# of the current FV3SAR cycle.
 #
 #-----------------------------------------------------------------------
+#
 
 #
 #-----------------------------------------------------------------------
@@ -65,9 +57,9 @@
 #-----------------------------------------------------------------------
 #
 WORKDIR_ICSLBCS_CDATE="$WORKDIR_ICSLBCS/$CDATE"
-WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK="$WORKDIR_ICSLBCS_CDATE/ICSSURF_work"
-mkdir_vrfy -p "$WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK"
-cd ${WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK}
+WORKDIR_ICSLBCS_CDATE_LBCS_WORK="$WORKDIR_ICSLBCS_CDATE/LBCS_work"
+mkdir_vrfy -p "$WORKDIR_ICSLBCS_CDATE_LBCS_WORK"
+cd ${WORKDIR_ICSLBCS_CDATE_LBCS_WORK}
 #
 #-----------------------------------------------------------------------
 #
@@ -115,7 +107,7 @@ case "$MACHINE" in
    module list
 
   np=${SLURM_NTASKS}
-  APRUN="mpirun -np ${np}"
+  APRUN="mpirun -np ${np}"   
 
   { restore_shell_opts; } > /dev/null 2>&1
   ;;
@@ -144,8 +136,7 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-# Are these still needed for chgres_cube?
-#
+# Are these still needed for chgres_cube???
 ln_vrfy -sf $WORKDIR_SHVE/${CRES}_grid.tile7.halo${nh4_T7}.nc \
             $WORKDIR_SHVE/${CRES}_grid.tile7.nc
 
@@ -169,7 +160,7 @@ Directory in which the wgrib2 executable is located not found:
 #
 #-----------------------------------------------------------------------
 #
-EXTRN_MDL_FILES_DIR="${EXTRN_MDL_FILES_BASEDIR_ICSSURF}/${CDATE}"
+EXTRN_MDL_FILES_DIR="${EXTRN_MDL_FILES_BASEDIR_LBCS}/${CDATE}"
 #
 #-----------------------------------------------------------------------
 #
@@ -189,7 +180,7 @@ EXTRN_MDL_FILES_DIR="${EXTRN_MDL_FILES_BASEDIR_ICSSURF}/${CDATE}"
 #
 #-----------------------------------------------------------------------
 #
-case "$EXTRN_MDL_NAME_ICSSURF" in
+case "$EXTRN_MDL_NAME_LBCS" in
 #
 "GFS")
   external_model="GFS"
@@ -204,7 +195,7 @@ case "$EXTRN_MDL_NAME_ICSSURF" in
   print_err_msg_exit "\
 The external model name to use in the chgres FORTRAN namelist file is 
 not specified for this external model:
-  EXTRN_MDL_NAME_ICSSURF = \"${EXTRN_MDL_NAME_ICSSURF}\"
+  EXTRN_MDL_NAME_LBCS = \"${EXTRN_MDL_NAME_LBCS}\"
 "
   ;;
 #
@@ -237,60 +228,73 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-# Get the starting year, month, day, and hour of the the external model
-# run.
+# Loop through the LBC update times and run chgres for each such time to
+# obtain an LBC file for each that can be used as input to the FV3SAR.
 #
 #-----------------------------------------------------------------------
 #
-#yyyy="${EXTRN_MDL_CDATE:0:4}"
-mm="${EXTRN_MDL_CDATE:4:2}"
-dd="${EXTRN_MDL_CDATE:6:2}"
-hh="${EXTRN_MDL_CDATE:8:2}"
-#yyyymmdd="${EXTRN_MDL_CDATE:0:8}"
-#
-#-----------------------------------------------------------------------
-#
-# Set external model output file name(s) and file type/format.  Note 
-# that these are now inputs into chgres.
-#
-#-----------------------------------------------------------------------
-#
-fn_atm_nemsio=""
 fn_sfc_nemsio=""
-fn_grib2=""
-input_type=""
 
-case "$EXTRN_MDL_NAME_ICSSURF" in
-"GFS")
-  fn_atm_nemsio="${EXTRN_MDL_FNS[0]}"
-  fn_sfc_nemsio="${EXTRN_MDL_FNS[1]}"
-  input_type="gfs_gaussian" # For spectral GFS Gaussian grid in nemsio format.
-#  input_type="gaussian"     # For FV3-GFS Gaussian grid in nemsio format.
-  ;;
-"RAPX")
-  fn_grib2="${EXTRN_MDL_FNS[0]}"
-  input_type="grib2"
-  ;;
-"HRRRX")
-  fn_grib2="${EXTRN_MDL_FNS[0]}"
-  input_type="grib2"
-  ;;
-*)
-  print_err_msg_exit "\
-The external model output file name(s) and file type/format to use in the
-chgres FORTRAN namelist file are not specified for this external model:
-  EXTRN_MDL_NAME_ICSSURF = \"${EXTRN_MDL_NAME_ICSSURF}\"
-"
-  ;;
-esac
+num_fhrs="${#EXTRN_MDL_LBC_UPDATE_FHRS[@]}"
+for (( i=0; i<=$(( $num_fhrs - 1 )); i++ )); do
 #
-#-----------------------------------------------------------------------
+# Get the forecast hour of the external model.
+#
+  fhr="${EXTRN_MDL_LBC_UPDATE_FHRS[$i]}"
+#
+# Set external model output file name and file type/format.  Note that
+# these are now inputs into chgres.
+#
+  fn_atm_nemsio=""
+  fn_grib2=""
+  input_type=""
+
+  case "$EXTRN_MDL_NAME_LBCS" in
+  "GFS")
+    fn_atm_nemsio="${EXTRN_MDL_FNS[$i]}"
+    input_type="gfs_gaussian" # For spectral GFS Gaussian grid in nemsio format.
+#    input_type="gaussian"     # For FV3-GFS Gaussian grid in nemsio format.
+    ;;
+  "RAPX")
+    fn_grib2="${EXTRN_MDL_FNS[$i]}"
+    input_type="grib2"
+    ;;
+  "HRRRX")
+    fn_grib2="${EXTRN_MDL_FNS[$i]}"
+    input_type="grib2"
+    ;;
+  *)
+    print_err_msg_exit "\
+The external model output file name and input file type to use in the 
+chgres FORTRAN namelist file are not specified for this external model:
+  EXTRN_MDL_NAME_LBCS = \"${EXTRN_MDL_NAME_LBCS}\"
+"
+    ;;
+  esac
+#
+# Get the starting year, month, day, and hour of the the external model
+# run.  Then add the forecast hour to it to get a date and time corres-
+# ponding to the current forecast time.
+#
+#  yyyy="${EXTRN_MDL_CDATE:0:4}"
+  mm="${EXTRN_MDL_CDATE:4:2}"
+  dd="${EXTRN_MDL_CDATE:6:2}"
+  hh="${EXTRN_MDL_CDATE:8:2}"
+  yyyymmdd="${EXTRN_MDL_CDATE:0:8}"
+
+  cdate_crnt_fhr=$( date --utc --date "${yyyymmdd} ${hh} UTC + ${fhr} hours" "+%Y%m%d%H" )
+#
+# Get the year, month, day, and hour corresponding to the current fore-
+# cast time of the the external model.
+#
+#  yyyy="${cdate_crnt_fhr:0:4}"
+  mm="${cdate_crnt_fhr:4:2}"
+  dd="${cdate_crnt_fhr:6:2}"
+  hh="${cdate_crnt_fhr:8:2}"
 #
 # Build the FORTRAN namelist file that chgres_cube will read in.
 #
-#-----------------------------------------------------------------------
-#
-cat > fort.41 <<EOF
+  cat > fort.41 <<EOF
 &config
  fix_dir_target_grid="${BASEDIR}/JP_grid_HRRR_like_fix_files_chgres_cube"
  mosaic_file_target_grid="${EXPTDIR}/INPUT/${CRES}_mosaic.nc"
@@ -309,39 +313,34 @@ cat > fort.41 <<EOF
  cycle_day=${dd}
  cycle_hour=${hh}
  convert_atm=.true.
- convert_sfc=.true.
+ convert_sfc=.false.
  convert_nst=.false.
- regional=1
+ regional=2
  input_type="${input_type}"
  external_model="${external_model}"
  phys_suite="${phys_suite}"
 /
 EOF
 #
-#-----------------------------------------------------------------------
-#
 # Run chgres_cube.
 #
-#-----------------------------------------------------------------------
-#
-${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
-Call to executable to generate surface and initial conditions files for
+  ${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
+Call to executable to generate lateral boundary conditions file for the
 the FV3SAR failed:
   EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
+  fhr = $fhr
   fn = \"$fn\"
 "
 #
-#-----------------------------------------------------------------------
-#--------------------------------------------------------------
+# Move LBCs file for the current lateral boundary update time to the ICs
+# /LBCs work directory.  Note that we rename the file using the forecast
+# hour of the FV3SAR (which is not necessarily the same as that of the 
+# external model since their start times may be offset).
 #
-# Move surface, control, and boundary file to ICs_BCs directory 
-#
-#-----------------------------------------------------------------------
-#
-mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.000.nc
-mv_vrfy gfs_ctrl.nc ${WORKDIR_ICSLBCS_CDATE}/
-# The surface file name will be changed to say "tile7" at some point.
-mv_vrfy out.sfc.tile1.nc ${WORKDIR_ICSLBCS_CDATE}/sfc_data.tile7.nc
+  fcst_hhh_FV3SAR=$( printf "%03d " "${LBC_UPDATE_FCST_HRS[$i]}" )
+  mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.${fcst_hhh_FV3SAR}.nc
+
+done
 #
 #-----------------------------------------------------------------------
 #
@@ -352,7 +351,8 @@ mv_vrfy out.sfc.tile1.nc ${WORKDIR_ICSLBCS_CDATE}/sfc_data.tile7.nc
 print_info_msg "\
 
 ========================================================================
-Surface and initial condition (IC) files generated successfully!!!
+Lateral boundary condition (LBC) files generated successfully for all 
+LBC update hours!!!
 ========================================================================"
 #
 #-----------------------------------------------------------------------

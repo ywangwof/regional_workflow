@@ -118,48 +118,36 @@ prefix_tar_files="gpfs_hps_nco_ops_com_gfs_prod_gfs"
 #-----------------------------------------------------------------------
 #
 # Set the system directory (i.e. location on disk, not on HPSS) in which
-# all analysis and forecast files needed to generate the input files for
-# FV3SAR may be found (if CDATE isn't too long ago).  On theia, these
-# directories contain the needed files for the past two days (today and
-# yesterday, or yesterday and the day before), while on WCOSS they con-
-# tain the needed files for the past two weeks.
-#
-# If the starting date of the forecast (CDATE) is within this time win-
-# dow (i.e. two days on theia and two weeks on WCOSS), the needed files
-# may simply be copied over from these system directories to EXTRN_MDL_FILES_DIR.  If
-# CDATE is a time that is outside (i.e. older than) this time window,
-# then the needed files must be obtained from the mass store (HPSS) and
-# placed into EXTRN_MDL_FILES_DIR.
+# to look for the GFS analysis and forecast files for the specified 
+# forecast start date and time (CDATE).  These files are needed in gene-
+# rating the IC, BC, and other input files for the FV3SAR.  These files
+# may be found in this system directory if CDATE is not too far in the
+# past (e.g. more than two weeks ago on WCOSS, more than 2 days ago on 
+# theia, etc).  If they are not found in this system directory, then we
+# will look for them in the mass store (HPSS).
 #
 #-----------------------------------------------------------------------
 #
 case $MACHINE in
-#
 "WCOSS_C")
-#
-  export INIDIR_SYS="/gpfs/hps/nco/ops/com/gfs/prod/gfs.$YYYYMMDD"
+  SYSDIR="$SYS_EXTRN_MDL_FILES_BASEDIR/gfs.$YYYYMMDD"
   ;;
-#
-"WCOSS")
-#
-  export INIDIR_SYS=""  # Not sure how these should be set on WCOSS.
-  ;;
-#
 "THEIA")
-#
-  export INIDIR_SYS="/scratch4/NCEPDEV/rstprod/com/gfs/prod/gfs.$YYYYMMDD"
+  SYSDIR="$SYS_EXTRN_MDL_FILES_BASEDIR/gfs.$YYYYMMDD"
   ;;
-#
 "JET")
-#
-  export INIDIR_SYS="/lfs3/projects/hpc-wof1/ywang/regional_fv3/gfs/$YYYYMMDD"
+  SYSDIR="$SYS_EXTRN_MDL_FILES_BASEDIR/$YYYYMMDD"
   ;;
-#
 "ODIN")
-#
-  export INIDIR_SYS="/scratch/ywang/test_runs/FV3_regional/gfs/$YYYYMMDD"
+  SYSDIR="$SYS_EXTRN_MDL_FILES_BASEDIR/$YYYYMMDD"
   ;;
-#
+*)
+  print_err_msg_exit "\
+The system directory in which to look for the GFS analysis and forecast
+files has not been specified for this machine:
+  MACHINE = \"$MACHINE\"
+"
+  ;;
 esac
 #
 #-----------------------------------------------------------------------
@@ -201,27 +189,27 @@ ANL_TAR_FILE="${prefix_tar_files}.${CDATE}.anl.tar"
 ARCHIVE_DIR="."
 #
 # Set variables containing the analysis file names (including paths)
-# that can be used below to either copy the analysis files from INIDIR_-
-# SYS or to extract them from a tar file in HPSS.
+# that can be used below to either copy the analysis files from SYSDIR
+# or to extract them from a tar file in HPSS.
 #
 files_to_copy=""
 files_to_extract=""
 for anl_file in "${anl_files[@]}"; do
-  files_to_copy="${files_to_copy} $INIDIR_SYS/$anl_file"
+  files_to_copy="${files_to_copy} $SYSDIR/$anl_file"
   files_to_extract="${files_to_extract} $ARCHIVE_DIR/$anl_file"
 done
 #
 #-----------------------------------------------------------------------
 #
 # We first need to check whether the needed analysis files all exist in
-# the system directory INIDIR_SYS specified above.  We perform this
+# the system directory SYSDIR specified above.  We perform this
 # check by counting the number of needed analysis files that actually
-# exist in INIDIR_SYS (num_files_found).  If that number is equal to the
+# exist in SYSDIR (num_files_found).  If that number is equal to the
 # number of needed analysis files (num_files_needed), it means all the
-# needed analysis files exist in INIDIR_SYS.  In this case, we will sim-
-# ply copy them from INIDIR_SYS to EXTRN_MDL_FILES_DIR.  If the number of files found
+# needed analysis files exist in SYSDIR.  In this case, we will sim-
+# ply copy them from SYSDIR to EXTRN_MDL_FILES_DIR.  If the number of files found
 # is not equal to the number needed, then all the needed analysis files
-# are not in INIDIR_SYS.  In this case, we will have to get them from
+# are not in SYSDIR.  In this case, we will have to get them from
 # HPSS and place them in EXTRN_MDL_FILES_DIR.
 #
 #-----------------------------------------------------------------------
@@ -236,7 +224,7 @@ done
 #-----------------------------------------------------------------------
 #
 # Check whether the needed analysis files all exist in the system di-
-# rectory INIDIR_SYS.  If so, copy them over to EXTRN_MDL_FILES_DIR.
+# rectory SYSDIR.  If so, copy them over to EXTRN_MDL_FILES_DIR.
 #
 #-----------------------------------------------------------------------
 #
@@ -246,7 +234,7 @@ if [ "$num_files_found" -eq "$num_files_needed" ]; then
 #
 #-----------------------------------------------------------------------
 #
-# If the needed analysis files are not all found in INIDIR_SYS, try to
+# If the needed analysis files are not all found in SYSDIR, try to
 # extract them from HPSS and into EXTRN_MDL_FILES_DIR.
 #
 #-----------------------------------------------------------------------
@@ -412,27 +400,27 @@ ARCHIVE_DIR="/${temp}.${YYYYMMDD}"
 #
 # Set variables containing the forecast file names with the appropriate
 # paths that can be used below to either copy the forecast files from
-# INIDIR_SYS or to extract them from a tar file in HPSS.
+# SYSDIR or to extract them from a tar file in HPSS.
 #
 files_to_copy=""
 files_to_extract=""
 for BC_time in "${BC_update_times_hrs[@]:1}"; do  # Note that the :1 causes the loop to start with the 2nd element of BC_update_times_hrs.
   fcst_HHH=$( printf "%03d" "$BC_time" )
   curnt_file="gfs.t${HH}z.atmf${fcst_HHH}.nemsio"
-  files_to_copy="${files_to_copy} $INIDIR_SYS/$curnt_file"
+  files_to_copy="${files_to_copy} $SYSDIR/$curnt_file"
   files_to_extract="${files_to_extract} $ARCHIVE_DIR/$curnt_file"
 done
 #
 #-----------------------------------------------------------------------
 #
 # We first need to check whether the needed forecast files all exist in
-# the system directory INIDIR_SYS specified above.  We perform this
+# the system directory SYSDIR specified above.  We perform this
 # check by counting the number of needed forecast files that actually
-# exist in INIDIR_SYS (num_files_found).  If that number is the same as
+# exist in SYSDIR (num_files_found).  If that number is the same as
 # the number of needed forecast files (num_files_needed), it means all
-# the needed forecast files exist in INIDIR_SYS (in which case we will
+# the needed forecast files exist in SYSDIR (in which case we will
 # simply copy them over to EXTRN_MDL_FILES_DIR).  If that number is different, then
-# all the needed forecast files are not in INIDIR_SYS (in which case we
+# all the needed forecast files are not in SYSDIR (in which case we
 # will have to get them from HPSS.
 #
 #-----------------------------------------------------------------------
@@ -447,7 +435,7 @@ done
 #-----------------------------------------------------------------------
 #
 # Check whether the needed forecast files all exist in the system di-
-# rectory INIDIR_SYS.  If so, copy them over to EXTRN_MDL_FILES_DIR.
+# rectory SYSDIR.  If so, copy them over to EXTRN_MDL_FILES_DIR.
 #
 #-----------------------------------------------------------------------
 #
@@ -457,7 +445,7 @@ if [ "$num_files_found" -eq "$num_files_needed" ]; then
 #
 #-----------------------------------------------------------------------
 #
-# If the needed forecast files are not found in INIDIR_SYS, try to ex-
+# If the needed forecast files are not found in SYSDIR, try to ex-
 # tract them from HPSS and into EXTRN_MDL_FILES_DIR.
 #
 #-----------------------------------------------------------------------
