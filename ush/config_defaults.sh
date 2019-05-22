@@ -179,39 +179,96 @@ WRTCMP_PARAMS_TEMPLATE_FN=""
 #
 # Set forecast parameters.  Definitions:
 #
-# CDATE_FIRST_CYCL:
-# Starting date of the first forecast in the cycle (set of forecasts).  
+# DATE_FIRST_CYCL:
+# Starting date of the first forecast in the set of forecasts to run.  
 # Format is "YYYYMMDD".  Note that this does not include the hour-of-
 # day.
 #
-# CDATE_LAST_CYCL:
-# Starting date of the last forecast in the cycle (set of forecasts).  
+# DATE_LAST_CYCL:
+# Starting date of the last forecast in the set of forecasts to run.
 # Format is "YYYYMMDD".  Note that this does not include the hour-of-
 # day.
 #
 # CYCL_HRS:
-# An array containing the hour-of-day for each cycle hour to run.  Each
-# element of this array must be a two-digit string representing an inte-
-# ger that is less than or equal to 23, e.g. "00", "03", "12", "23".
+# An array containing the hours of the day at which to launch forecasts.
+# Forecasts are launched at these hours on each day from DATE_FIRST_CYCL
+# to DATE_LAST_CYCL, inclusive.  Each element of this array must be a 
+# two-digit string representing an integer that is less than or equal to
+# 23, e.g. "00", "03", "12", "23".
 #
 # fcst_len_hrs:
-#`The length of the forecast in integer hours.
-#
-# BC_update_intvl_hrs:
-# The frequency (in integer hours) with which boundary data will be pro-
-# vided to the FV3SAR model.  We will refer to this as the boundary up-
-# date interval.  As of 11/12/2018, the boundary data is obtained from 
-# GFS forecast files in nemsio format, which are stored in mass storage
-# (HPSS).  Since these forecast files are available only every 6 hours, 
-# BC_update_intvl_hrs must be greater than or equal to 6.
+# The length of each forecast, in integer hours.
 #
 #-----------------------------------------------------------------------
 #
-CDATE_FIRST_CYCL="YYYYMMDD"
-CDATE_LAST_CYCL="YYYYMMDD"
+DATE_FIRST_CYCL="YYYYMMDD"
+DATE_LAST_CYCL="YYYYMMDD"
 CYCL_HRS=( "HH1" "HH2" )
 fcst_len_hrs="24"
-BC_update_intvl_hrs="6"
+#
+#-----------------------------------------------------------------------
+#
+# Set initial and lateral boundary condition generation parameters.  De-
+# finitions:
+#
+# EXTRN_MDL_NAME_ICSSURF
+#`The name of the external model that will provide fields from which 
+# initial condition (IC) and surface files will be generated for input
+# into the FV3SAR.
+#
+# EXTRN_MDL_NAME_LBCS
+#`The name of the external model that will provide fields from which 
+# lateral boundary condition (LBC) files will be generated for input in-
+# to the FV3SAR.
+#
+# LBC_UPDATE_INTVL_HRS:
+# The frequency (in integer hours) with which lateral boundary data will
+# be provided to the FV3SAR model.  We will refer to this as the bound-
+# ary update interval.  If the boundary data is obtained from GFS fore-
+# cast files in nemsio format stored in HPSS (mass store), then LBC_UP-
+# DATE_INTVL_HRS must be greater than or equal to 6 because these fore-
+# cast files are available only every 6 hours.
+#
+# EXTRN_MDL_INFO_FN:
+# Name of sourceable file (not including the full path) defining the va-
+# riables specified in EXTRN_MDL_INFO_VAR_NAMES (see below).  
+#
+# EXTRN_MDL_INFO_VAR_NAMES:
+# Names to use for the following parameters (for a given cycle of the 
+# FV3SAR):
+# * The date and hour-of-day (in YYYYMMDDHH format) of the start time of
+#   the external model.
+# * Array containing the forecast hours (relative to the 
+# * Array containing the names of the external model output files.
+# * The system directory in which the external model output files may be
+#   found (if the cycle start time is not too old).
+# * The format of the archive file (e.g. "tar", "zip", etc) on HPSS that
+#   may contain the external model output files.  Note that this archive
+#   file will exist only if the cycle start time is old enough.
+# * The name of the archive file on HPSS that may contain the external
+#   model output files.
+# * The full path to the archive file on HPSS that may contain the ex-
+#   ternal model output files.
+# * The directory "within" the archive file in which the external model 
+#   output files are stored.
+#
+#-----------------------------------------------------------------------
+#
+EXTRN_MDL_NAME_ICSSURF="GFS"
+EXTRN_MDL_NAME_LBCS="GFS"
+LBC_UPDATE_INTVL_HRS="6"
+EXTRN_MDL_INFO_FN="extrn_mdl_info.sh"
+#EXTRN_MDL_INFO_VAR_NAMES=( \
+#"EXTRN_MDL_CDATE" \
+#"EXTRN_MDL_LBC_UPDATE_FHRS" \
+#"EXTRN_MDL_FNS" \
+#"EXTRN_MDL_FILES_SYSDIR" \
+#"EXTRN_MDL_ARCV_FILE_FMT" \
+#"EXTRN_MDL_ARCV_FN" \
+#"EXTRN_MDL_ARCV_FP" \
+#"EXTRN_MDL_ARCVREL_DIR" \
+#)
+EXTRN_MDL_INFO_VAR_NAMES=( "EXTRN_MDL_CDATE" "EXTRN_MDL_LBC_UPDATE_FHRS" "EXTRN_MDL_FNS" "EXTRN_MDL_FILES_SYSDIR" "EXTRN_MDL_ARCV_FILE_FMT" "EXTRN_MDL_ARCV_FN" "EXTRN_MDL_ARCV_FP" "EXTRN_MDL_ARCVREL_DIR" )
 #
 #-----------------------------------------------------------------------
 #
