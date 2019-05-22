@@ -39,7 +39,7 @@
        layout   =  <layout_x>,<layout_y>
        io_layout = 1,1
        npx      = <npx>
-       npy      = <npy>       
+       npy      = <npy>
        ntiles   = 1,
        npz    = 64
        !grid_type = -1
