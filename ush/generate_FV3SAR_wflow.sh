@@ -167,7 +167,7 @@ sed -i -r -e "s|${regex_search}|${all_cycledefs}|g" "$WFLOW_XML_FP"
 #-----------------------------------------------------------------------
 #
 { save_shell_opts; set +x; } > /dev/null 2>&1
-module load rocoto/1.3.0-RC5
+module load rocoto/1.3.0
 { restore_shell_opts; } > /dev/null 2>&1
 #
 #-----------------------------------------------------------------------

@@ -60,6 +60,14 @@ WORKDIR_ICSLBCS_CDATE="$WORKDIR_ICSLBCS/$CDATE"
 WORKDIR_ICSLBCS_CDATE_LBCS_WORK="$WORKDIR_ICSLBCS_CDATE/LBCS_work"
 mkdir_vrfy -p "$WORKDIR_ICSLBCS_CDATE_LBCS_WORK"
 cd ${WORKDIR_ICSLBCS_CDATE_LBCS_WORK}
+#-----------------------------------------------------------------------
+#
+# Set the directory in which all executables called by this script are
+# located.
+#
+#-----------------------------------------------------------------------
+#
+export exec_dir="$FV3SAR_DIR/exec"
 #
 #-----------------------------------------------------------------------
 #
@@ -337,8 +345,8 @@ the FV3SAR failed:
 # hour of the FV3SAR (which is not necessarily the same as that of the 
 # external model since their start times may be offset).
 #
-  fcst_hhh_FV3SAR=$( printf "%03d " "${LBC_UPDATE_FCST_HRS[$i]}" )
-  mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.${fcst_hhh_FV3SAR}.nc
+  fcst_hhh_FV3SAR=$( printf "%03d" "${LBC_UPDATE_FCST_HRS[$i]}" )
+  mv_vrfy gfs.bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.${fcst_hhh_FV3SAR}.nc
 
 done
 #

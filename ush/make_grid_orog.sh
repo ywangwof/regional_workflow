@@ -846,6 +846,11 @@ Linking grid file for chgres."
 
 ln_vrfy -sf $WORKDIR_SHVE/${CRES}_grid.tile${tile}.halo${nh4_T7}.nc \
             $WORKDIR_SHVE/${CRES}_grid.tile${tile}.nc
+
+print_info_msg_verbose "\
+Linking orog file for regional fix file generation." 
+ln_vrfy -sf $WORKDIR_SHVE/${CRES}_oro_data.tile7.halo4.nc $WORKDIR_SHVE/${CRES}_oro_data.tile7.nc
+
 #
 #-----------------------------------------------------------------------
 #
