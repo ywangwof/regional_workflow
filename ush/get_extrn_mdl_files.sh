@@ -106,18 +106,18 @@ Could not change directory to EXTRN_MDL_FILES_DIR:
 #-----------------------------------------------------------------------
 #
 
-if [ -f "${EXTRN_MDL_INFO_FN}" ]; then
-  print_err_msg_exit "\
-File defining external model parameters (EXTRN_MDL_INFO_FN) already ex-
-ists in directory EXTRN_MDL_FILES_DIR:
-  EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
-  EXTRN_MDL_INFO_FN = \"${EXTRN_MDL_INFO_FN}\"
-"
-else
+#if [ -f "${EXTRN_MDL_INFO_FN}" ]; then
+#  print_err_msg_exit "\
+#File defining external model parameters (EXTRN_MDL_INFO_FN) already ex-
+#ists in directory EXTRN_MDL_FILES_DIR:
+#  EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
+#  EXTRN_MDL_INFO_FN = \"${EXTRN_MDL_INFO_FN}\"
+#"
+#else
   get_extrn_mdl_file_dir_info \
     "$EXTRN_MDL_NAME" "$ANL_OR_FCST" "$CDATE" "$TIME_OFFSET_HRS" \
     "$EXTRN_MDL_INFO_FN" ${EXTRN_MDL_INFO_VAR_NAMES[@]}
-fi
+#fi
 
 
 if [ ! -f "${EXTRN_MDL_INFO_FN}" ]; then
