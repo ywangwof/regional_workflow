@@ -1,33 +1,36 @@
 ;
 ; **********************************************************************
 ;
-; File name: read_RAP_grid.ncl
+; File name: read_FV3SAR_grid_wrtcmp.ncl
 ; Author: Gerard Ketefian
 ;
 ; Description:
 ; ^^^^^^^^^^^
 ; This function returns the dimensions, cell center coordinates, and
-; cell vertex coordinates of the grid encompassing the RAP domain speci-
-; fied in the file RAP_grid_fn.  If get_domain_bdy is set to True, it 
+; cell vertex coordinates of the grid that discretizes the FV3SAR's 
+; write-component output domain.  The file to read is specified by 
+; FV3SAR_wrtcmp_fn.  If get_domain_bdy is set to True, this function
 ; also returns the coordinates of the cell vertices lying on the bounda-
 ; ry of the domain.
 ;
 ; **********************************************************************
 ;
 loadscript(lib_location + "special_chars.ncl")
+loadscript(lib_location + "constants.ncl")
 loadscript(lib_location + "strcmp_exact.ncl")
 loadscript(lib_location + "get_rect_grid_bdy.ncl")
 
-undef("read_RAP_grid")
+undef("read_FV3SAR_grid_wrtcmp")
 
-function read_RAP_grid( \
-         RAP_grid_fn:string, \
+function read_FV3SAR_grid_wrtcmp( \
+         FV3SAR_wrtcmp_fn:string, \
          get_domain_bdy:logical)
 
 local fp, \
       coord_data_type, \
-      lon_cntrs, lat_cntrs, \
+      coord_sys, \
       lon_verts, lat_verts, \
+      lon_cntrs, lat_cntrs, \
       dims, nx, ny, \
       lon_cntrs_unstruc, lat_cntrs_unstruc, \
       lon_verts_unstruc, lat_verts_unstruc, \
@@ -51,17 +54,17 @@ begin
 ;
 ; **********************************************************************
 ;
-; Open the specified file for reading.
+; Open the specified FV3SAR wrtcmp-generated output file for reading.
 ;
 ; **********************************************************************
 ;
   print("")
   print("" + separator_line)
-  print("Reading in grid coordinates of the RAP domain from file:")
+  print("Reading in FV3SAR's write-component grid coordinates from file ...")
   print("")
-  print("  RAP_grid_fn = " + char_dq + RAP_grid_fn + char_dq)
+  print("  FV3SAR_wrtcmp_fn = " + char_dq + FV3SAR_wrtcmp_fn + char_dq)
 
-  fp = addfile(RAP_grid_fn, "r")
+  fp = addfile(FV3SAR_wrtcmp_fn, "r")
 ;
 ; **********************************************************************
 ;
@@ -72,37 +75,40 @@ begin
 ;
 ; **********************************************************************
 ;
-  coord_data_type = getfilevartypes(fp, "XLONG_M") 
+  coord_data_type = getfilevartypes(fp, "grid_xt")
 ;
 ; **********************************************************************
 ;
-; Read in the cell center coordinates.
-;
-; **********************************************************************
+; Read in the coordinate system in which the grid is generated.
 ; 
-  lon_cntrs := fp->XLONG_M(:,:,:)
-  lat_cntrs := fp->XLAT_M(:,:,:)
+; **********************************************************************
 ;
+  coord_sys := fp@grid
+; 
 ; **********************************************************************
 ;
 ; Read in the cell vertex coordinates.
 ; 
 ; **********************************************************************
-;
-  lon_verts := fp->XLONG_C(:,:,:)
-  lat_verts := fp->XLAT_C(:,:,:)
-;
-; **********************************************************************
-;
-; Remove singleton dimensions (e.g. time) from the coordinate arrays.
-;
-; **********************************************************************
-;
-  lon_cntrs := rm_single_dims(lon_cntrs)
-  lat_cntrs := rm_single_dims(lat_cntrs)
+; 
+  if (strcmp_exact(coord_sys, "rotated_latlon") .or. \
+      strcmp_exact(coord_sys, "lambert_conformal")) then
 
-  lon_verts := rm_single_dims(lon_verts)
-  lat_verts := rm_single_dims(lat_verts)
+    lon_verts := fp->grid_xt(:,:)
+    lat_verts := fp->grid_yt(:,:)
+
+lon_verts = lon_verts*degs_per_rad
+lat_verts = lat_verts*degs_per_rad
+
+  else
+
+    print("")
+    print("This function does not yet support this coordinate system:")
+    print("  coord_sys = " + char_dq + coord_sys + char_dq)
+    print("Stopping.")
+    exit
+
+  end if
 ;
 ; **********************************************************************
 ;
@@ -110,13 +116,33 @@ begin
 ;
 ; **********************************************************************
 ;
-  dims := dimsizes(lon_cntrs)
-  nx = dims(1)
-  ny = dims(0)
+  dims := dimsizes(lon_verts)
+  nx = dims(1) - 1
+  ny = dims(0) - 1
 
   print("")
   print("  nx = " + nx)
   print("  ny = " + ny)
+;
+; **********************************************************************
+;
+; Calculate cell center coordinates from cell vertex coordinates.
+;
+; **********************************************************************
+;
+;  lon_cntrs := new((/ ny, nx /), coord_data_type)
+  lon_cntrs = lon_verts(0:ny-1,0:nx-1) \
+            + lon_verts(0:ny-1,1:nx) \
+            + lon_verts(1:ny,1:nx) \
+            + lon_verts(1:ny,0:nx-1)
+  lon_cntrs = 0.25d+0*lon_cntrs
+
+;  lat_cntrs := new((/ ny, nx /), coord_data_type)
+  lat_cntrs = lat_verts(0:ny-1,0:nx-1) \
+            + lat_verts(0:ny-1,1:nx) \
+            + lat_verts(1:ny,1:nx) \
+            + lat_verts(1:ny,0:nx-1)
+  lat_cntrs = 0.25d+0*lat_cntrs
 ;
 ; **********************************************************************
 ;
@@ -160,9 +186,9 @@ begin
 ;
 ; **********************************************************************
 ;
-; If get_domain_bdy is specified to be True, save in a pair of 1-D ar-
-; rays the coordinates of those cell vertices that lie on the boundary 
-; of the grid.
+; If get_domain_bdy is True, get the coordinates of the boundary points
+; on the grid.  Here, by "boundary points", we mean those cell vertices
+; that happen to lie on the grid's boundary.
 ;
 ; **********************************************************************
 ;
@@ -174,9 +200,6 @@ begin
                 repeat_last_point, array_order)
     lon_bdy := bdy_info@x_bdy
     lat_bdy := bdy_info@y_bdy
-  else
-    lon_bdy := default_fillvalue(coord_data_type)
-    lat_bdy := default_fillvalue(coord_data_type)
   end if
 ;
 ; **********************************************************************
@@ -195,7 +218,7 @@ begin
   corner_lats := corner_info@y_corners
 
   print("")
-  print("  The RAP domain's corner lon/lat coordinates are:")
+  print("  The write-component grid's corner lon/lat coordinates are:")
   fmt_str = "%7.2f"
   do c=0, dimsizes(corner_lons)-1
     lon_str = sprintf(fmt_str, corner_lons(c))
@@ -205,42 +228,8 @@ begin
   end do
 
   print("")
-  print("Done reading in RAP grid coordinates from file.")
+  print("Done reading in FV3SAR's write-component grid coordinates from file.")
   print("" + separator_line)
-;
-; **********************************************************************
-;
-; Calculate the coordinates of the center of the RAP grid.
-;
-; **********************************************************************
-;
-  rem_nx = mod(nx, 2)
-  rem_ny = mod(ny, 2)
-
-  if ((rem_nx .eq. 0) .and. (rem_ny .eq. 0)) then
-    i_cntr = nx/2
-    j_cntr = ny/2
-    lon_grid_cntr := lon_verts(j_cntr,i_cntr)
-    lat_grid_cntr := lat_verts(j_cntr,i_cntr)
-  else if ((rem_nx .eq. 1) .and. (rem_ny .eq. 0)) then
-    i_cntr = (nx - 1)/2
-    j_cntr = ny/2
-    lon_grid_cntr := fp->XLONG_V(:,j_cntr,i_cntr)
-    lat_grid_cntr := fp->XLAT_V(:,j_cntr,i_cntr)
-  else if ((rem_nx .eq. 0) .and. (rem_ny .eq. 1)) then
-    i_cntr = nx/2
-    j_cntr = (ny - 1)/2
-    lon_grid_cntr := fp->XLONG_U(:,j_cntr,i_cntr)
-    lat_grid_cntr := fp->XLAT_U(:,j_cntr,i_cntr)
-  else if ((rem_nx .eq. 1) .and. (rem_ny .eq. 1)) then
-    i_cntr = (nx - 1)/2
-    j_cntr = (ny - 1)/2
-    lon_grid_cntr := lon_cntrs(j_cntr,i_cntr)
-    lat_grid_cntr := lat_cntrs(j_cntr,i_cntr)
-  end if
-  end if
-  end if
-  end if
 ;
 ; **********************************************************************
 ;
@@ -259,8 +248,6 @@ begin
   grid_info@lat_verts_unstruc = lat_verts_unstruc
   grid_info@lon_bdy = lon_bdy
   grid_info@lat_bdy = lat_bdy
-  grid_info@lon_grid_cntr = lon_grid_cntr
-  grid_info@lat_grid_cntr = lat_grid_cntr
   grid_info@coord_data_type = coord_data_type
 
   return(grid_info)
