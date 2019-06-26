@@ -197,7 +197,6 @@
        do_sfcperts    = .F.
        lsm            = 2
        lsoil_lsm      = 9
-       lsoil          = 9
        icloud_bl         = 1
        bl_mynn_tkeadvect = .true.
        bl_mynn_edmf      = 1 
