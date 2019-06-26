@@ -286,12 +286,12 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-# Set the directory in which all executables called by this script are
-# located.
+# Set and export the variable exec_dir.  This is needed by some of the 
+# scripts called by this script.
 #
 #-----------------------------------------------------------------------
 #
-export exec_dir="$FV3SAR_DIR/exec"
+export exec_dir="$EXECDIR"
 #
 #-----------------------------------------------------------------------
 #
@@ -420,7 +420,7 @@ Call to script that generates grid files returned with nonzero exit code."
 
   tile_rgnl=7
   grid_fn="${CRES}_grid.tile${tile_rgnl}.nc"
-  $exec_dir/global_equiv_resol "$WORKDIR_GRID/$grid_fn" || print_err_msg_exit "\ 
+  $EXECDIR/global_equiv_resol "$WORKDIR_GRID/$grid_fn" || print_err_msg_exit "\ 
 Call to executable that calculates equivalent global uniform cubed sphere
 resolution returned with nonzero exit code."
 
@@ -462,13 +462,13 @@ Setting parameters in file:
 
   cd_vrfy $WORKDIR_GRID
 
-  $exec_dir/regional_grid $RGNL_GRID_NML_FP || print_err_msg_exit "\ 
+  $EXECDIR/regional_grid $RGNL_GRID_NML_FP || print_err_msg_exit "\ 
 Call to executable that generates grid file (Jim Purser version) returned 
 with nonzero exit code."
 
   tile_rgnl=7
   grid_fn="regional_grid.nc"
-  $exec_dir/global_equiv_resol "$WORKDIR_GRID/$grid_fn" || print_err_msg_exit "\ 
+  $EXECDIR/global_equiv_resol "$WORKDIR_GRID/$grid_fn" || print_err_msg_exit "\ 
 Call to executable that calculates equivalent global uniform cubed sphere
 resolution returned with nonzero exit code."
 
@@ -482,7 +482,7 @@ resolution returned with nonzero exit code."
   grid_fn="${CRES_equiv}_grid.tile${tile_rgnl}.nc"
   mv_vrfy $grid_fn_orig $grid_fn
 
-  $exec_dir/mosaic_file $CRES_equiv || print_err_msg_exit "\ 
+  $EXECDIR/mosaic_file $CRES_equiv || print_err_msg_exit "\ 
 Call to executable that creates a grid mosaic file returned with nonzero
 exit code."
 #
@@ -510,13 +510,20 @@ fi
 #
 #-----------------------------------------------------------------------
 #
+# Define the tile number for the regional grid.
+#
+#-----------------------------------------------------------------------
+#
+tile=7
+#
+#-----------------------------------------------------------------------
+#
 # For clarity, rename the tile 7 grid file such that its new name con-
 # tains the halo size.  Then create a link whose name doesn't contain
 # the halo size that points to this file.
 #
 #-----------------------------------------------------------------------
 #
-tile=7
 cd_vrfy $WORKDIR_GRID
 mv_vrfy ${CRES}_grid.tile${tile}.nc \
         ${CRES}_grid.tile${tile}.halo${nhw_T7}.nc
@@ -545,7 +552,6 @@ print_info_msg_verbose "Grid file generation complete."
 #
 print_info_msg_verbose "Starting orography file generation..."
 
-tile=7
 #
 # We need to export WORKDIR_OROG so that orog_gen_scr sets its internal
 # work directory correctly for the regional case.
@@ -595,7 +601,6 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-tile=7
 cd_vrfy $WORKDIR_OROG
 mv_vrfy oro.${CRES}.tile${tile}.nc \
         oro.${CRES}.tile${tile}.halo${nhw_T7}.nc
@@ -695,7 +700,7 @@ fi
 # file and the mosaic file that was created above in WORKDIR_GRID and
 # the (unfiltered) tile 7 orography file created above in WORKDIR_OROG
 # to WORKDIR_FLTR.  It also copies the executable that performs the fil-
-# tering from exec_dir to WORKDIR_FLTR and creates a namelist file that
+# tering from EXECDIR to WORKDIR_FLTR and creates a namelist file that
 # the executable needs as input.  When run, for each tile listed in the
 # mosaic file, the executable replaces the unfiltered orography file
 # with its filtered counterpart (i.e. it gives the filtered file the
@@ -727,7 +732,6 @@ zero exit code."
 #
 #-----------------------------------------------------------------------
 #
-tile=7
 cd_vrfy $WORKDIR_FLTR
 mv_vrfy oro.${CRES}.tile${tile}.nc \
         oro.${CRES}.tile${tile}.halo${nhw_T7}.nc
@@ -815,22 +819,22 @@ printf "%s %s %s %s %s\n" \
 #
 #-----------------------------------------------------------------------
 #
-$APRUN $exec_dir/$shave_exec < input.shave.grid.halo${nh3_T7} || \
+$APRUN $EXECDIR/$shave_exec < input.shave.grid.halo${nh3_T7} || \
 print_err_msg_exit "\
 Call to \"shave\" executable to generate grid file with a 3-cell wide
 halo returned with nonzero exit code."
 
-$APRUN $exec_dir/$shave_exec < input.shave.grid.halo${nh4_T7} || \
+$APRUN $EXECDIR/$shave_exec < input.shave.grid.halo${nh4_T7} || \
 print_err_msg_exit "\
 Call to \"shave\" executable to generate grid file with a 4-cell wide
 halo returned with nonzero exit code."
 
-$APRUN $exec_dir/$shave_exec < input.shave.orog.halo${nh0_T7} || \
+$APRUN $EXECDIR/$shave_exec < input.shave.orog.halo${nh0_T7} || \
 print_err_msg_exit "\
 Call to \"shave\" executable to generate (filtered) orography file with-
 out a halo returned with nonzero exit code."
 
-$APRUN $exec_dir/$shave_exec < input.shave.orog.halo${nh4_T7} || \
+$APRUN $EXECDIR/$shave_exec < input.shave.orog.halo${nh4_T7} || \
 print_err_msg_exit "\
 Call to \"shave\" executable to generate (filtered) orography file with
 a 4-cell wide halo returned with nonzero exit code."
