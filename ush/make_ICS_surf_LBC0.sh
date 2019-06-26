@@ -68,14 +68,6 @@ WORKDIR_ICSLBCS_CDATE="$WORKDIR_ICSLBCS/$CDATE"
 WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK="$WORKDIR_ICSLBCS_CDATE/ICSSURF_work"
 mkdir_vrfy -p "$WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK"
 cd ${WORKDIR_ICSLBCS_CDATE_ICSSURF_WORK}
-#-----------------------------------------------------------------------
-#
-# Set the directory in which all executables called by this script are
-# located.
-#
-#-----------------------------------------------------------------------
-#
-export exec_dir="$FV3SAR_DIR/exec"
 #
 #-----------------------------------------------------------------------
 #
@@ -355,11 +347,14 @@ status."
 #
 #-----------------------------------------------------------------------
 #
-#${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
-#${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/sorc/chgres_cube.fd/exec/global_chgres.exe || print_err_msg_exit "\
-${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/exec/chgres_cube.exe || print_err_msg_exit "\
+#${APRUN} ${EXECDIR}/global_chgres.exe || print_err_msg_exit "\
+#${APRUN} ${EXECDIR}/chgres_cube.exe || print_err_msg_exit "\
+${APRUN} ${BASEDIR}/UFS_UTILS_chgres_grib2/exec/chgres_cube.exe || print_err_msg_exit "\
 Call to executable to generate surface and initial conditions files for
-the FV3SAR failed."
+the FV3SAR failed:
+  EXTRN_MDL_NAME_ICSSURF = \"${EXTRN_MDL_NAME_ICSSURF}\"
+  EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
+"
 #
 #-----------------------------------------------------------------------
 #
