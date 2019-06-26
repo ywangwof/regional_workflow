@@ -298,7 +298,18 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-cat > fort.41 <<EOF
+
+# fix_dir_target_grid="${BASEDIR}/JP_grid_HRRR_like_fix_files_chgres_cube"
+# base_install_dir="${SORCDIR}/chgres_cube.fd"
+
+#
+# As an alternative to the cat command below, we can have a template for
+# the namelist file and use the set_file_param(.sh) function to set 
+# namelist entries in it.  The set_file_param function will print out a
+# message and exit if it fails to set a variable in the file.
+#
+
+{ cat > fort.41 <<EOF
 &config
  fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/sfc_climo_final_C3343"
  mosaic_file_target_grid="${EXPTDIR}/INPUT/${CRES}_mosaic.nc"
@@ -331,6 +342,12 @@ cat > fort.41 <<EOF
  tg3_from_soil=.true.
 /
 EOF
+} || print_err_msg_exit "\
+\"cat\" command to create a namelist file for chgres_cube to generate ICs,
+surface fields, and the 0-th hour (initial) LBCs returned with nonzero 
+status."
+
+# tracers_input= "spfh","clwmr","o3mr"
 #
 #-----------------------------------------------------------------------
 #
@@ -345,16 +362,16 @@ Call to executable to generate surface and initial conditions files for
 the FV3SAR failed."
 #
 #-----------------------------------------------------------------------
-#--------------------------------------------------------------
 #
-# Move surface, control, and boundary file to ICs_BCs directory 
+# Move initial condition, surface, control, and 0-th hour lateral bound-
+# ary files to ICs_BCs directory. 
 #
 #-----------------------------------------------------------------------
 #
-mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.000.nc
-mv_vrfy gfs_ctrl.nc ${WORKDIR_ICSLBCS_CDATE}
-mv_vrfy out.sfc.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/sfc_data.tile7.nc
 mv_vrfy out.atm.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_data.tile7.nc
+mv_vrfy out.sfc.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/sfc_data.tile7.nc
+mv_vrfy gfs_ctrl.nc ${WORKDIR_ICSLBCS_CDATE}
+mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.000.nc
 #
 #-----------------------------------------------------------------------
 #
@@ -365,7 +382,8 @@ mv_vrfy out.atm.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_data.tile7.nc
 print_info_msg "\
 
 ========================================================================
-Surface and initial condition (IC) files generated successfully!!!
+Initial condition, surface, and 0-th hour lateral boundary condition
+files (in NetCDF format) generated successfully!!!
 ========================================================================"
 #
 #-----------------------------------------------------------------------
