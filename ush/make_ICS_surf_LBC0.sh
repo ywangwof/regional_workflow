@@ -286,6 +286,53 @@ esac
 #
 #-----------------------------------------------------------------------
 #
+# Set various external model-dependent namelist options to chgres_cube.
+#
+#-----------------------------------------------------------------------
+#
+case "$EXTRN_MDL_NAME_ICSSURF" in
+
+"GFS")
+  numsoil_out="4"
+  geogrid_file_input_grid=""  # How to get this to not be used???
+  replace_vgtyp=".true."
+  replace_sotyp=".true."
+  replace_vgfrc=".true."
+  tg3_from_soil=".false."
+  ;;
+
+"HRRRX")
+  numsoil_out="9"
+  geogrid_file_input_grid="/scratch3/BMC/det/beck/FV3-CAM/geo_em.d01.nc"  # As of 2019-06-19, this parameter is only used if reading in HRRR grib2 files.
+  replace_vgtyp=".false."
+  replace_sotyp=".false."
+  replace_vgfrc=".false."
+  tg3_from_soil=".true."
+  ;;
+
+*)
+  print_err_msg_exit "\
+One or more chgres_cube namelist variables have not been specified for
+the specifed external model used to generate ICs, surface fields, and
+the first LBC:
+
+  EXTRN_MDL_NAME_ICSSURF = \"${EXTRN_MDL_NAME_ICSSURF}\"
+
+Unspecified namelist variables:
+
+  numsoil_out
+  geogrid_file_input_grid
+  replace_vgtyp
+  replace_sotyp
+  replace_vgfrc
+  tg3_from_soil
+"
+  ;;
+
+esac
+#
+#-----------------------------------------------------------------------
+#
 # Build the FORTRAN namelist file that chgres_cube will read in.
 #
 #-----------------------------------------------------------------------
@@ -326,12 +373,13 @@ esac
  input_type="${input_type}"
  external_model="${external_model}"
  phys_suite="${phys_suite}"
- numsoil_out=9
- geogrid_file_input_grid="/scratch3/BMC/det/beck/FV3-CAM/geo_em.d01.nc"
- replace_vgtyp=.false.
- replace_sotyp=.false.
- replace_vgfrc=.false.
- tg3_from_soil=.true.
+ numsoil_out=${numsoil_out}
+ geogrid_file_input_grid="${geogrid_file_input_grid}"
+ replace_vgtyp=${replace_vgtyp}
+ replace_sotyp=${replace_sotyp}
+ replace_vgfrc=${replace_vgfrc}
+ tg3_from_soil=${tg3_from_soil}
+ tracers_input= "sphum","liq_wat","o3mr"
 /
 EOF
 } || print_err_msg_exit "\
