@@ -295,16 +295,19 @@ chgres FORTRAN namelist file are not specified for this external model:
 #
 # Build the FORTRAN namelist file that chgres_cube will read in.
 #
-  cat > fort.41 <<EOF
+# QUESTION:
+# Do numsoil_out, ..., tg3_from_soil need to be in this namelist (as 
+# they are for the ICs namelist)?
+  { cat > fort.41 <<EOF
 &config
- fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/sfc_climo_final_C3343"
+ fix_dir_target_grid="${WORKDIR_SFC_CLIMO}"
  mosaic_file_target_grid="${EXPTDIR}/INPUT/${CRES}_mosaic.nc"
  orog_dir_target_grid="${EXPTDIR}/INPUT"
  orog_files_target_grid="${CRES}_oro_data.tile7.halo${nh4_T7}.nc"
  vcoord_file_target_grid="${FV3SAR_DIR}/fix/fix_am/global_hyblev.l65.txt"
  mosaic_file_input_grid=""
  orog_dir_input_grid=""
- base_install_dir="/scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix"
+ base_install_dir="${BASEDIR}/UFS_UTILS_chgres_grib2"
  wgrib2_path="${WGRIB2_DIR}"
  data_dir_input_grid="${EXTRN_MDL_FILES_DIR}"
  atm_files_input_grid="${fn_atm_nemsio}"
@@ -327,6 +330,10 @@ chgres FORTRAN namelist file are not specified for this external model:
  tg3_from_soil=.true.
 /
 EOF
+  } || print_err_msg_exit "\
+\"cat\" command to create a namelist file for chgres_cube to generate LBCs
+for all boundary update times (except the 0-th forecast hour) returned 
+with nonzero status."
 #
 # Run chgres_cube.
 #
