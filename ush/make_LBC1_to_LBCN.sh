@@ -323,11 +323,6 @@ chgres FORTRAN namelist file are not specified for this external model:
  input_type="${input_type}"
  external_model="${external_model}"
  phys_suite="${phys_suite}"
- numsoil_out=9
- replace_vgtyp=.false.
- replace_sotyp=.false.
- replace_vgfrc=.false.
- tg3_from_soil=.true.
 /
 EOF
   } || print_err_msg_exit "\
