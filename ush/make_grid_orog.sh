@@ -841,20 +841,28 @@ a 4-cell wide halo returned with nonzero exit code."
 
 print_info_msg_verbose "\
 \"Shaving\" of regional grid and filtered orography files complete."
-
-# Add link from grid directory to shave directory to allow chgres_cube
-# to find grid file - Need to modify chgres to read in halo files names
-
+#
+#-----------------------------------------------------------------------
+#
+# Add links in shave directory to the grid and orography files with 4-
+# cell-wide halos such that the link names do not contain the halo 
+# width.  These links are needed by the make_sfc_climo task (which uses
+# the sfc_climo_gen code).
+#
+# NOTE: It would be nice to modify the sfc_climo_gen_code to read in
+# files that have the halo size in their names.
+#
+#-----------------------------------------------------------------------
+#
 print_info_msg_verbose "\
-Linking grid file for chgres."
+Creating links needed by the make_sfc_climo task to the 4-halo grid and
+orography files..."
 
-ln_vrfy -sf $WORKDIR_SHVE/${CRES}_grid.tile${tile}.halo${nh4_T7}.nc \
-            $WORKDIR_SHVE/${CRES}_grid.tile${tile}.nc
-
-print_info_msg_verbose "\
-Linking orog file for regional fix file generation." 
-ln_vrfy -sf $WORKDIR_SHVE/${CRES}_oro_data.tile7.halo4.nc $WORKDIR_SHVE/${CRES}_oro_data.tile7.nc
-
+cd_vrfy $WORKDIR_SHVE
+ln_vrfy -sf ${CRES}_grid.tile${tile}.halo${nh4_T7}.nc \
+            ${CRES}_grid.tile${tile}.nc
+ln_vrfy -sf ${CRES}_oro_data.tile${tile}.halo${nh4_T7}.nc \
+            ${CRES}_oro_data.tile${tile}.nc
 #
 #-----------------------------------------------------------------------
 #
