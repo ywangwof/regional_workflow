@@ -112,17 +112,6 @@ HH_FIRST_CYCL=${CYCL_HRS[0]}
 #
 #-----------------------------------------------------------------------
 #
-# Replace the dummy line in the XML defining the "at_start" cycle with a
-# line containing actual values.
-#
-#-----------------------------------------------------------------------
-#
-#regex_search="(^\s*<cycledef\s+group=\"at_start\">00)\s+(&HH_FIRST_CYCL;)\s+(&DD_FIRST_CYCL;)\s+(&MM_FIRST_CYCL;)\s+(&YYYY_FIRST_CYCL;)\s+(.*</cycledef>)(.*)"
-#regex_replace="\1 ${HH_FIRST_CYCL} ${DD_FIRST_CYCL} ${MM_FIRST_CYCL} ${YYYY_FIRST_CYCL} \6"
-#sed -i -r -e "s|${regex_search}|${regex_replace}|g" "$WFLOW_XML_FP"
-#
-#-----------------------------------------------------------------------
-#
 # Replace the dummy line in the XML defining a generic cycle hour with
 # one line per cycle hour containing actual values.
 #
