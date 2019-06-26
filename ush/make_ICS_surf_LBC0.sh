@@ -300,14 +300,14 @@ esac
 #
 cat > fort.41 <<EOF
 &config
- fix_dir_target_grid="${BASEDIR}/JP_grid_HRRR_like_fix_files_chgres_cube"
+ fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/sfc_climo_final_C3343"
  mosaic_file_target_grid="${EXPTDIR}/INPUT/${CRES}_mosaic.nc"
  orog_dir_target_grid="${EXPTDIR}/INPUT"
  orog_files_target_grid="${CRES}_oro_data.tile7.halo${nh4_T7}.nc"
- vcoord_file_target_grid="${FV3SAR_DIR}/fix/fix_am/global_hyblev.l64.txt"
+ vcoord_file_target_grid="${FV3SAR_DIR}/fix/fix_am/global_hyblev.l65.txt"
  mosaic_file_input_grid=""
  orog_dir_input_grid=""
- base_install_dir="${SORCDIR}/chgres_cube.fd"
+ base_install_dir="/scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix"
  wgrib2_path="${WGRIB2_DIR}"
  data_dir_input_grid="${EXTRN_MDL_FILES_DIR}"
  atm_files_input_grid="${fn_atm_nemsio}"
@@ -323,6 +323,12 @@ cat > fort.41 <<EOF
  input_type="${input_type}"
  external_model="${external_model}"
  phys_suite="${phys_suite}"
+ numsoil_out=9
+ geogrid_file_input_grid="/scratch3/BMC/det/beck/FV3-CAM/geo_em.d01.nc"
+ replace_vgtyp=.false.
+ replace_sotyp=.false.
+ replace_vgfrc=.false.
+ tg3_from_soil=.true.
 /
 EOF
 #
@@ -332,7 +338,9 @@ EOF
 #
 #-----------------------------------------------------------------------
 #
-${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
+#${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
+#${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/sorc/chgres_cube.fd/exec/global_chgres.exe || print_err_msg_exit "\
+${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/exec/chgres_cube.exe || print_err_msg_exit "\
 Call to executable to generate surface and initial conditions files for
 the FV3SAR failed."
 #
@@ -343,9 +351,10 @@ the FV3SAR failed."
 #
 #-----------------------------------------------------------------------
 #
-mv_vrfy gfs.bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.000.nc
+mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.000.nc
 mv_vrfy gfs_ctrl.nc ${WORKDIR_ICSLBCS_CDATE}
 mv_vrfy out.sfc.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/sfc_data.tile7.nc
+mv_vrfy out.atm.tile7.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_data.tile7.nc
 #
 #-----------------------------------------------------------------------
 #

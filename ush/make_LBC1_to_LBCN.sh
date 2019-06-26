@@ -304,14 +304,14 @@ chgres FORTRAN namelist file are not specified for this external model:
 #
   cat > fort.41 <<EOF
 &config
- fix_dir_target_grid="${BASEDIR}/JP_grid_HRRR_like_fix_files_chgres_cube"
+ fix_dir_target_grid="/scratch3/BMC/det/beck/FV3-CAM/sfc_climo_final_C3343"
  mosaic_file_target_grid="${EXPTDIR}/INPUT/${CRES}_mosaic.nc"
  orog_dir_target_grid="${EXPTDIR}/INPUT"
  orog_files_target_grid="${CRES}_oro_data.tile7.halo${nh4_T7}.nc"
- vcoord_file_target_grid="${FV3SAR_DIR}/fix/fix_am/global_hyblev.l64.txt"
+ vcoord_file_target_grid="${FV3SAR_DIR}/fix/fix_am/global_hyblev.l65.txt"
  mosaic_file_input_grid=""
  orog_dir_input_grid=""
- base_install_dir="${SORCDIR}/chgres_cube.fd"
+ base_install_dir="/scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix"
  wgrib2_path="${WGRIB2_DIR}"
  data_dir_input_grid="${EXTRN_MDL_FILES_DIR}"
  atm_files_input_grid="${fn_atm_nemsio}"
@@ -327,18 +327,21 @@ chgres FORTRAN namelist file are not specified for this external model:
  input_type="${input_type}"
  external_model="${external_model}"
  phys_suite="${phys_suite}"
+ numsoil_out=9
+ replace_vgtyp=.false.
+ replace_sotyp=.false.
+ replace_vgfrc=.false.
+ tg3_from_soil=.true.
 /
 EOF
 #
 # Run chgres_cube.
 #
-  ${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
+#  ${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
+#${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/sorc/chgres_cube.fd/exec/global_chgres.exe || print_err_msg_exit "\
+${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/exec/chgres_cube.exe || print_err_msg_exit "\
 Call to executable to generate lateral boundary conditions file for the
-the FV3SAR failed:
-  EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
-  fhr = $fhr
-  fn = \"$fn\"
-"
+the FV3SAR failed."
 #
 # Move LBCs file for the current lateral boundary update time to the ICs
 # /LBCs work directory.  Note that we rename the file using the forecast
@@ -346,7 +349,7 @@ the FV3SAR failed:
 # external model since their start times may be offset).
 #
   fcst_hhh_FV3SAR=$( printf "%03d" "${LBC_UPDATE_FCST_HRS[$i]}" )
-  mv_vrfy gfs.bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.${fcst_hhh_FV3SAR}.nc
+  mv_vrfy gfs_bndy.nc ${WORKDIR_ICSLBCS_CDATE}/gfs_bndy.tile7.${fcst_hhh_FV3SAR}.nc
 
 done
 #

@@ -2,10 +2,10 @@
 <YYYY> <MM> <DD> <HH> 0 0
 
 "grid_spec",              -1,  "months",   1, "days",  "time"
-"atmos_static",           -1,  "hours",    1, "hours", "time"
 "atmos_4xdaily",           6,  "hours",    1, "days",  "time"
-"fv3_history",             3,  "hours",    1, "hours", "time"
-"fv3_history2d",           3,  "hours",    1, "hours", "time"
+"atmos_static",           -1,  "hours",    1, "hours", "time"
+"fv3_history",    0,  "hours",  1,  "hours",  "time"
+"fv3_history2d",  0,  "hours",  1,  "hours",  "time"
 
 #
 #=======================
@@ -54,14 +54,14 @@
  "dynamics",  "t50",         "t50",        "atmos_4xdaily", "all", .false.,  "none", 2
  "dynamics",  "t10",         "t10",        "atmos_4xdaily", "all", .false.,  "none", 2
 ####
- "dynamics",  "z1000",       "z1000",      "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z850",        "z850",       "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z700",        "z700",       "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z500",        "z500",       "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z200",        "z200",       "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z100",        "z100",       "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z50",         "z50",        "atmos_4xdaily", "all", .false.,  "none", 2
- "dynamics",  "z10",         "z10",        "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h1000",       "h1000",      "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h850",        "h850",       "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h700",        "h700",       "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h500",        "h500",       "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h200",        "h200",       "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h100",        "h100",       "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h50",         "h50",        "atmos_4xdaily", "all", .false.,  "none", 2
+ "dynamics",  "h10",         "h10",        "atmos_4xdaily", "all", .false.,  "none", 2
 ####
 #"dynamics",  "w1000",       "w1000",      "atmos_4xdaily", "all", .false.,  "none", 2
  "dynamics",  "w850",        "w850",       "atmos_4xdaily", "all", .false.,  "none", 2
@@ -117,7 +117,8 @@
 "gfs_dyn",     "graupel",     "grle",      "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "ps",          "pressfc",   "fv3_history",    "all",  .false.,  "none",  2
 "gfs_dyn",     "hs",          "hgtsfc",    "fv3_history",    "all",  .false.,  "none",  2
-"gfs_phys",    "refl_10cm"    "refl_10cm"  "fv3_history",    "all",  .false.,  "none",  2
+#"gfs_dyn",     "ice_nc",      "nicp",      "fv3_history",  "all",  .false.,  "none",  2
+#"gfs_dyn",     "rain_nc",     "ntrnc",     "fv3_history",  "all",  .false.,  "none",  2
 
 "gfs_dyn",   "wmaxup",        "upvvelmax",   "fv3_history",           "all",  .false.,  "none", 2
 "gfs_dyn",   "wmaxdn",        "dnvvelmax",   "fv3_history",           "all",  .false.,  "none", 2
@@ -173,6 +174,7 @@
 "gfs_phys",  "dusfc",         "uflx_ave",    "fv3_history2d",         "all",  .false.,  "none",  2
 "gfs_phys",  "dvsfc",         "vflx_ave",    "fv3_history2d",         "all",  .false.,  "none",  2
 #"gfs_phys",  "cnvw",          "cnvcldwat",   "fv3_history2d",         "all",  .false.,  "none",  2
+"gfs_phys",  "refl_10cm",     "refl10cm",    "fv3_history2d",         "all",  .false.,  "none",  2
 
 "gfs_phys",    "psurf",       "pressfc",   "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_phys",    "u10m",        "ugrd10m",   "fv3_history2d",  "all",  .false.,  "none",  2
@@ -195,14 +197,29 @@
 "gfs_sfc",     "soilt2",      "soilt2"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilt3",      "soilt3"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilt4",      "soilt4"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilt5",      "soilt5"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilt6",      "soilt6"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilt7",      "soilt7"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilt8",      "soilt8"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilt9",      "soilt9"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilw1",      "soilw1"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilw2",      "soilw2"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilw3",      "soilw3"     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "soilw4",      "soilw4"     "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_sfc",     "slc_1",       "soill1",    "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_sfc",     "slc_2",       "soill2",    "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_sfc",     "slc_3",       "soill3",    "fv3_history2d",  "all",  .false.,  "none",  2
-"gfs_sfc",     "slc_4",       "soill4",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilw5",      "soilw5"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilw6",      "soilw6"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilw7",      "soilw7"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilw8",      "soilw8"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soilw9",      "soilw9"     "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill1",      "soill1",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill2",      "soill2",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill3",      "soill3",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill4",      "soill4",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill5",      "soill5",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill6",      "soill6",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill7",      "soill7",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill8",      "soill8",    "fv3_history2d",  "all",  .false.,  "none",  2
+"gfs_sfc",     "soill9",      "soill9",    "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "slope",       "sltyp",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "alnsf",       "alnsf",     "fv3_history2d",  "all",  .false.,  "none",  2
 "gfs_sfc",     "alnwf",       "alnwf",     "fv3_history2d",  "all",  .false.,  "none",  2
