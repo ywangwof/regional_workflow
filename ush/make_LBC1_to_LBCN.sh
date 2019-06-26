@@ -60,14 +60,6 @@ WORKDIR_ICSLBCS_CDATE="$WORKDIR_ICSLBCS/$CDATE"
 WORKDIR_ICSLBCS_CDATE_LBCS_WORK="$WORKDIR_ICSLBCS_CDATE/LBCS_work"
 mkdir_vrfy -p "$WORKDIR_ICSLBCS_CDATE_LBCS_WORK"
 cd ${WORKDIR_ICSLBCS_CDATE_LBCS_WORK}
-#-----------------------------------------------------------------------
-#
-# Set the directory in which all executables called by this script are
-# located.
-#
-#-----------------------------------------------------------------------
-#
-export exec_dir="$FV3SAR_DIR/exec"
 #
 #-----------------------------------------------------------------------
 #
@@ -115,7 +107,7 @@ case "$MACHINE" in
    module list
 
   np=${SLURM_NTASKS}
-  APRUN="mpirun -np ${np}"   
+  APRUN="mpirun -np ${np}"
 
   { restore_shell_opts; } > /dev/null 2>&1
   ;;
@@ -144,7 +136,8 @@ esac
 #
 #-----------------------------------------------------------------------
 #
-# Are these still needed for chgres_cube???
+# Are these still needed for chgres_cube?
+#
 ln_vrfy -sf $WORKDIR_SHVE/${CRES}_grid.tile7.halo${nh4_T7}.nc \
             $WORKDIR_SHVE/${CRES}_grid.tile7.nc
 
@@ -337,11 +330,15 @@ EOF
 #
 # Run chgres_cube.
 #
-#  ${APRUN} ${exec_dir}/global_chgres.exe || print_err_msg_exit "\
-#${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/sorc/chgres_cube.fd/exec/global_chgres.exe || print_err_msg_exit "\
-${APRUN} /scratch3/BMC/det/beck/FV3-CAM/UFS_UTILS_chgres_bug_fix/exec/chgres_cube.exe || print_err_msg_exit "\
+#  ${APRUN} ${EXECDIR}/global_chgres.exe || print_err_msg_exit "\
+  ${APRUN} ${BASEDIR}/UFS_UTILS_chgres_grib2/exec/chgres_cube.exe || \
+  print_err_msg_exit "\
 Call to executable to generate lateral boundary conditions file for the
-the FV3SAR failed."
+the FV3SAR failed:
+  EXTRN_MDL_NAME_LBCS = \"${EXTRN_MDL_NAME_LBCS}\"
+  EXTRN_MDL_FILES_DIR = \"${EXTRN_MDL_FILES_DIR}\"
+  fhr = \"$fhr\"
+"
 #
 # Move LBCs file for the current lateral boundary update time to the ICs
 # /LBCs work directory.  Note that we rename the file using the forecast
