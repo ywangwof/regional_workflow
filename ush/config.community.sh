@@ -2,6 +2,10 @@ MACHINE="hera"
 ACCOUNT="an_account"
 EXPT_SUBDIR="test_community"
 
+PARTITION_DEFAULT="batch"
+PARTITION_HPSS="service"
+PARTITION_FCST="batch"
+
 QUEUE_DEFAULT="batch"
 QUEUE_HPSS="service"
 QUEUE_FCST="batch"
@@ -28,3 +32,11 @@ EXTRN_MDL_NAME_LBCS="FV3GFS"
 RUN_TASK_MAKE_GRID="TRUE"
 RUN_TASK_MAKE_OROG="TRUE"
 RUN_TASK_MAKE_SFC_CLIMO="TRUE"
+
+USE_USER_STAGED_EXTRN_FILES="FALSE"
+
+EXTRN_MDL_SOURCE_BASEDIR_ICS="/scratch/ywang/comFV3SAR/testing2/expt_dirs/gfs"
+EXTRN_MDL_FILES_ICS=("gfs.t00z.atmanl.nemsio" "gfs.t00z.sfcanl.nemsio")
+
+EXTRN_MDL_SOURCE_BASEDIR_LBCS="/scratch/ywang/comFV3SAR/testing2/expt_dirs/gfs"
+EXTRN_MDL_FILES_LBCS=("gfs.t00z.atmf006.nemsio")
